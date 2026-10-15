@@ -17,9 +17,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -59,7 +70,7 @@ fun PantallaInici(vm: JocViewModel, onObreCarta: (String) -> Unit) {
     var resultat by remember { mutableStateOf<ResultatSobre?>(null) }
     val res = resultat
     if (res != null) {
-        ObertureSobre(res, onTanca = { resultat = null }, onObreCarta = onObreCarta)
+        ObertureSobre(res, vm, onTanca = { resultat = null }, onObreCarta = onObreCarta)
         return
     }
 
@@ -144,52 +155,97 @@ fun PantallaInici(vm: JocViewModel, onObreCarta: (String) -> Unit) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ObertureSobre(
     res: ResultatSobre,
+    vm: JocViewModel,
     onTanca: () -> Unit,
     onObreCarta: (String) -> Unit,
 ) {
-    val girades = remember(res) { mutableStateListOf(*Array(res.cartes.size) { false }) }
-    val hiHaLlegendaria = res.cartes.indices.any { girades[it] && res.cartes[it].raresa == 5 }
+    val total = res.cartes.size
+    val pager = rememberPagerState { total }
+    val scope = rememberCoroutineScope()
+    val vistes = remember(res) { mutableStateListOf(*Array(total) { false }) }
+    val extractes = remember(res, vm.idioma) { res.cartes.map { vm.repo.text(it.id, vm.idioma)?.text } }
+    val actual = pager.currentPage
+    LaunchedEffect(actual) { vistes[actual] = true }
+    val queden = vistes.count { !it }
+    val llegendariaVista = res.cartes.indices.any { vistes[it] && res.cartes[it].raresa == 5 }
+    val resources = LocalContext.current.resources
 
     Box(Modifier.fillMaxSize()) {
         Column(
-            Modifier.fillMaxSize().padding(16.dp),
+            Modifier.fillMaxSize().padding(vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                stringResource(R.string.toca_girar),
+                stringResource(R.string.carta_n, actual + 1, total),
+                fontSize = 18.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(12.dp))
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3),
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                itemsIndexed(res.cartes) { i, carta ->
+            HorizontalPager(
+                state = pager,
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 32.dp),
+                pageSpacing = 16.dp,
+            ) { i ->
+                BoxWithConstraints(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    val ample = minOf(maxWidth, maxHeight * 0.68f)
                     CartaGirable(
-                        carta = carta,
-                        nova = carta.id in res.noves,
-                        girada = girades[i],
-                        onClick = {
-                            if (!girades[i]) girades[i] = true else onObreCarta(carta.id)
-                        },
+                        carta = res.cartes[i],
+                        extracte = extractes[i],
+                        nova = res.cartes[i].id in res.noves,
+                        girada = vistes[i],
+                        modifier = Modifier.width(ample),
+                        onClick = { onObreCarta(res.cartes[i].id) },
                     )
                 }
             }
             Spacer(Modifier.height(12.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Button(onClick = { girades.indices.forEach { girades[it] = true } }) {
-                    Text(stringResource(R.string.revela_totes))
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                IconButton(
+                    onClick = { scope.launch { pager.animateScrollToPage(actual - 1) } },
+                    enabled = actual > 0,
+                ) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = null) }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    repeat(total) { i ->
+                        Box(
+                            Modifier
+                                .size(10.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    if (i == actual) MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f),
+                                ),
+                        )
+                    }
                 }
-                Button(onClick = onTanca) { Text(stringResource(R.string.continua)) }
+                IconButton(
+                    onClick = { scope.launch { pager.animateScrollToPage(actual + 1) } },
+                    enabled = actual < total - 1,
+                ) { Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null) }
+            }
+            Spacer(Modifier.height(12.dp))
+            Button(
+                onClick = {
+                    if (queden > 0) {
+                        val proxima = vistes.indexOfFirst { !it }
+                        scope.launch { pager.animateScrollToPage(proxima) }
+                    } else {
+                        onTanca()
+                    }
+                },
+            ) {
+                Text(
+                    if (queden > 0) resources.getQuantityString(R.plurals.encara_cartes, queden, queden)
+                    else stringResource(R.string.continua),
+                    fontSize = 18.sp,
+                )
             }
         }
-        if (hiHaLlegendaria) {
+        if (llegendariaVista) {
             Confeti()
             Text(
                 stringResource(R.string.legendaria_alerta),
@@ -203,50 +259,57 @@ private fun ObertureSobre(
 }
 
 @Composable
-private fun CartaGirable(carta: Carta, nova: Boolean, girada: Boolean, onClick: () -> Unit) {
+private fun CartaGirable(
+    carta: Carta,
+    extracte: String?,
+    nova: Boolean,
+    girada: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
     val rotacio by animateFloatAsState(
         targetValue = if (girada) 0f else 180f,
-        animationSpec = tween(450),
+        animationSpec = tween(550),
         label = "gira",
     )
     val densitat = LocalDensity.current.density
     Box(
-        Modifier
+        modifier
             .graphicsLayer {
                 rotationY = rotacio
                 cameraDistance = 12f * densitat
-            }
-            .clickable(onClick = onClick),
+            },
     ) {
         if (rotacio > 90f) {
             // Dors de la carta (es contra-gira perquè no es vegi en mirall)
             Box(
                 Modifier
                     .graphicsLayer { rotationY = 180f }
+                    .fillMaxWidth()
                     .aspectRatio(0.68f)
-                    .clip(RoundedCornerShape(14.dp))
+                    .clip(RoundedCornerShape(18.dp))
                     .background(MaterialTheme.colorScheme.secondary)
-                    .padding(4.dp)
-                    .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(10.dp)),
+                    .padding(5.dp)
+                    .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(14.dp)),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("?", fontSize = 40.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text("?", fontSize = 56.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
         } else {
-            CartaView(carta, compacta = true)
+            CartaView(carta, extracte = extracte, onClick = onClick)
             Text(
                 if (nova) stringResource(R.string.nova) else stringResource(R.string.repetida),
-                fontSize = 10.sp,
+                fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 26.dp)
+                    .align(Alignment.TopCenter)
+                    .padding(top = 10.dp)
                     .background(
                         if (nova) Color(0xFF69F0AE) else Color(0xFFCFCBEA),
                         RoundedCornerShape(8.dp),
                     )
-                    .padding(horizontal = 6.dp, vertical = 1.dp),
+                    .padding(horizontal = 8.dp, vertical = 2.dp),
             )
         }
     }

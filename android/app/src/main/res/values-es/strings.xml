@@ -14,6 +14,11 @@
 
     <string name="sobre_subtitol">Descubre %1$d cartas nuevas</string>
     <string name="obre">Abrir</string>
+    <string name="carta_n">Carta %1$d / %2$d</string>
+    <plurals name="encara_cartes">
+        <item quantity="one">Aún %d carta</item>
+        <item quantity="other">Aún %d cartas</item>
+    </plurals>
     <string name="obre_sobre">Abrir un sobre</string>
     <string name="sobres_guardats">Sobres: %1$d de %2$d</string>
     <string name="proper_sobre">Próximo sobre en %1$s</string>

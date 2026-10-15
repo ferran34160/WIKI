@@ -156,13 +156,17 @@ private fun vida(carta: Carta): String? {
     return if (d != null) "$n–$d" else n
 }
 
-/** Carta d'esportista. [compacta] és la versió de quadrícula (sense peu de dades). */
+/**
+ * Carta d'esportista. [compacta] és la versió de quadrícula (sense peu de dades).
+ * Si hi ha [extracte], es mostra dins la carta amb la mida de lletra ajustada perquè hi càpiga.
+ */
 @Composable
 fun CartaView(
     carta: Carta,
     modifier: Modifier = Modifier,
     compacta: Boolean = false,
     quantitat: Int = 0,
+    extracte: String? = null,
     onClick: (() -> Unit)? = null,
 ) {
     val colorMarc = colorRaresa(carta.raresa)
@@ -181,7 +185,7 @@ fun CartaView(
         val escala = (maxWidth.value / 180f).coerceIn(0.75f, 1.7f)
         val fonsFoto = lerp(dalt, baix, 0.58f)
         Column(Modifier.fillMaxSize()) {
-            Box(Modifier.weight(0.58f).fillMaxWidth()) {
+            Box(Modifier.weight(if (extracte != null) 0.5f else 0.58f).fillMaxWidth()) {
                 Icon(
                     Icons.Default.Person,
                     contentDescription = null,
@@ -222,13 +226,13 @@ fun CartaView(
             }
             Column(
                 Modifier
-                    .weight(0.42f)
+                    .weight(if (extracte != null) 0.5f else 0.42f)
                     .fillMaxWidth()
                     .padding(horizontal = (10 * escala).dp, vertical = (4 * escala).dp),
             ) {
                 TextAjustat(
                     carta.nom,
-                    mida = (16 * escala).sp,
+                    mida = ((if (extracte != null) 14 else 16) * escala).sp,
                     minim = (9 * escala).sp,
                     pes = FontWeight.ExtraBold,
                     maxLinies = 2,
@@ -240,7 +244,20 @@ fun CartaView(
                     color = TintaCarta.copy(alpha = 0.7f),
                 )
                 if (!compacta) {
-                    Spacer(Modifier.weight(1f))
+                    if (extracte != null) {
+                        Box(Modifier.weight(1f).fillMaxWidth().padding(vertical = (4 * escala).dp)) {
+                            TextAjustat(
+                                extracte,
+                                mida = (12 * escala).sp,
+                                minim = (6.5f * escala).coerceAtLeast(9f).sp,
+                                modifier = Modifier.fillMaxSize(),
+                                color = TintaCarta.copy(alpha = 0.85f),
+                                maxLinies = Int.MAX_VALUE,
+                            )
+                        }
+                    } else {
+                        Spacer(Modifier.weight(1f))
+                    }
                     Box(
                         Modifier
                             .fillMaxWidth()
