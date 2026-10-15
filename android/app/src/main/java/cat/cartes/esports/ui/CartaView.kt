@@ -36,9 +36,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -48,6 +51,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cat.cartes.esports.data.Carta
+import cat.cartes.esports.data.banderaPais
 import coil.compose.AsyncImage
 import java.util.Locale
 
@@ -87,21 +91,69 @@ private fun Modifier.holo(actiu: Boolean): Modifier {
     }
 }
 
-/** Fons amb degradat vertical i anells translúcids a l'estil de les ones d'una carta tipus holo. */
-private fun Modifier.fonsTexturat(dalt: Color, baix: Color): Modifier = this
-    .background(Brush.verticalGradient(listOf(dalt, baix)))
-    .drawBehind {
-        val traç = Stroke(width = size.width * 0.035f)
-        val centre = Offset(size.width * 0.95f, size.height * 0.85f)
-        for (i in 1..7) {
-            drawCircle(
-                color = Color.White.copy(alpha = 0.16f),
-                radius = size.width * 0.22f * i,
-                center = centre,
-                style = traç,
-            )
+private val TraçMotiu = Color.White.copy(alpha = 0.22f)
+
+/** Línies del terreny de joc de cada esport, dibuixades en blanc translúcid sobre el fons. */
+private fun DrawScope.motiuEsport(esport: String?) {
+    val w = size.width
+    val h = size.height
+    val tr = Stroke(width = maxOf(2f, w * 0.012f))
+    when (esport) {
+        "futbol" -> {
+            // Mig camp, cercle central i àrea de penal.
+            drawRect(TraçMotiu, Offset(w * 0.06f, h * 0.06f), Size(w * 0.88f, h * 0.9f), style = tr)
+            drawLine(TraçMotiu, Offset(w * 0.06f, h * 0.55f), Offset(w * 0.94f, h * 0.55f), tr.width)
+            drawCircle(TraçMotiu, w * 0.2f, Offset(w / 2, h * 0.55f), style = tr)
+            drawCircle(TraçMotiu, w * 0.015f, Offset(w / 2, h * 0.55f))
+            drawRect(TraçMotiu, Offset(w * 0.22f, h * 0.78f), Size(w * 0.56f, h * 0.18f), style = tr)
+            drawRect(TraçMotiu, Offset(w * 0.36f, h * 0.89f), Size(w * 0.28f, h * 0.07f), style = tr)
+            drawArc(TraçMotiu, 215f, 110f, false, Offset(w * 0.36f, h * 0.7f), Size(w * 0.28f, w * 0.28f), style = tr)
+        }
+        "basquet" -> {
+            // Mitja pista: línia de fons, bombolla, cercle de tirs lliures i línia de triples.
+            drawRect(TraçMotiu, Offset(w * 0.06f, h * 0.06f), Size(w * 0.88f, h * 0.9f), style = tr)
+            drawRect(TraçMotiu, Offset(w * 0.36f, h * 0.64f), Size(w * 0.28f, h * 0.32f), style = tr)
+            drawArc(TraçMotiu, 180f, 180f, false, Offset(w * 0.36f, h * 0.64f - w * 0.14f), Size(w * 0.28f, w * 0.28f), style = tr)
+            drawLine(TraçMotiu, Offset(w * 0.14f, h * 0.96f), Offset(w * 0.14f, h * 0.8f), tr.width)
+            drawLine(TraçMotiu, Offset(w * 0.86f, h * 0.96f), Offset(w * 0.86f, h * 0.8f), tr.width)
+            drawArc(TraçMotiu, 180f, 180f, false, Offset(w * 0.14f, h * 0.8f - w * 0.36f), Size(w * 0.72f, w * 0.72f), style = tr)
+            drawCircle(TraçMotiu, w * 0.025f, Offset(w / 2, h * 0.9f), style = tr)
+        }
+        "tennis" -> {
+            // Pista: línies de fons i laterals, línies de servei, xarxa i línia central.
+            drawRect(TraçMotiu, Offset(w * 0.1f, h * 0.36f), Size(w * 0.8f, h * 0.6f), style = tr)
+            drawLine(TraçMotiu, Offset(w * 0.2f, h * 0.36f), Offset(w * 0.2f, h * 0.96f), tr.width)
+            drawLine(TraçMotiu, Offset(w * 0.8f, h * 0.36f), Offset(w * 0.8f, h * 0.96f), tr.width)
+            drawLine(TraçMotiu, Offset(w * 0.2f, h * 0.5f), Offset(w * 0.8f, h * 0.5f), tr.width)
+            drawLine(TraçMotiu, Offset(w * 0.2f, h * 0.82f), Offset(w * 0.8f, h * 0.82f), tr.width)
+            drawLine(TraçMotiu, Offset(w / 2, h * 0.5f), Offset(w / 2, h * 0.82f), tr.width)
+            drawLine(TraçMotiu, Offset(w * 0.06f, h * 0.66f), Offset(w * 0.94f, h * 0.66f), tr.width * 1.6f)
+        }
+        "atletisme" -> {
+            // Pista d'atletisme vista de dalt: carrils concèntrics.
+            for (i in 0..5) {
+                val amp = w * (0.9f - i * 0.1f)
+                val alt = h * (0.55f - i * 0.065f)
+                drawRoundRect(
+                    TraçMotiu,
+                    topLeft = Offset((w - amp) / 2, h * 0.97f - alt),
+                    size = Size(amp, alt),
+                    cornerRadius = CornerRadius(amp / 2),
+                    style = tr,
+                )
+            }
+        }
+        else -> {
+            val centre = Offset(w * 0.95f, h * 0.85f)
+            for (i in 1..7) drawCircle(TraçMotiu, w * 0.22f * i, centre, style = tr)
         }
     }
+}
+
+/** Fons amb degradat vertical i el motiu de l'esport. */
+private fun Modifier.fonsTexturat(dalt: Color, baix: Color, esport: String?): Modifier = this
+    .background(Brush.verticalGradient(listOf(dalt, baix)))
+    .drawBehind { motiuEsport(esport) }
 
 /** Text d'una o dues línies que redueix la mida fins que cap dins l'espai disponible. */
 @Composable
@@ -176,6 +228,7 @@ fun CartaView(
     val colorMarc = colorRaresa(carta.raresa)
     val (dalt, baix) = fonsRaresa(carta.raresa)
     val forma = RoundedCornerShape(18.dp)
+    val bandera = remember(carta.paisQid) { banderaPais(carta.paisQid) }
     val esport = nomEsport(carta.esport)
     val etiquetaEsport = listOfNotNull(esport.takeIf { it.isNotBlank() }, pais?.takeIf { it.isNotBlank() })
         .joinToString(" · ")
@@ -184,7 +237,7 @@ fun CartaView(
             .aspectRatio(0.68f)
             .clip(forma)
             .border(1.5.dp, colorMarc.copy(alpha = 0.9f), forma)
-            .fonsTexturat(dalt, baix)
+            .fonsTexturat(dalt, baix, carta.esport)
             .let { if (onClick != null) it.clickable(onClick = onClick) else it }
             .holo(carta.raresa >= 3),
     ) {
@@ -213,12 +266,23 @@ fun CartaView(
                     escala,
                     Modifier.align(Alignment.TopStart).padding((8 * escala).dp),
                 )
+                bandera?.let {
+                    Text(
+                        it,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding((8 * escala).dp)
+                            .background(Color.Black.copy(alpha = 0.35f), RoundedCornerShape(50))
+                            .padding(horizontal = (6 * escala).dp, vertical = (2 * escala).dp),
+                        fontSize = (16 * escala).sp,
+                    )
+                }
                 if (quantitat > 1) {
                     Etiqueta(
                         "×$quantitat",
                         Color.Black.copy(alpha = 0.65f),
                         escala,
-                        Modifier.align(Alignment.TopEnd).padding((8 * escala).dp),
+                        Modifier.align(Alignment.BottomStart).padding((8 * escala).dp),
                     )
                 }
             }
