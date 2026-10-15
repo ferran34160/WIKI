@@ -39,7 +39,6 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -121,6 +120,7 @@ private fun TextAjustat(
         text,
         modifier = modifier,
         fontSize = actual,
+        lineHeight = (actual.value * 1.2f).sp,
         fontWeight = pes,
         color = color,
         maxLines = maxLinies,
@@ -189,7 +189,6 @@ fun CartaView(
     ) {
         // Tot el text s'escala amb l'ample de la carta; així cap a la quadrícula i al detall.
         val escala = (maxWidth.value / 180f).coerceIn(0.75f, 1.7f)
-        val fonsFoto = lerp(dalt, baix, 0.58f)
         Column(Modifier.fillMaxSize()) {
             Box(Modifier.weight(if (extracte != null) 0.42f else 0.58f).fillMaxWidth()) {
                 Icon(
@@ -207,14 +206,6 @@ fun CartaView(
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
-                // Degradat que fon la foto amb el fons de la carta.
-                Box(
-                    Modifier
-                        .align(Alignment.BottomCenter)
-                        .fillMaxWidth()
-                        .fillMaxHeight(0.38f)
-                        .background(Brush.verticalGradient(listOf(Color.Transparent, fonsFoto))),
-                )
                 Etiqueta(
                     nomRaresa(carta.raresa),
                     colorMarc,
@@ -254,8 +245,8 @@ fun CartaView(
                         Box(Modifier.weight(1f).fillMaxWidth().padding(vertical = (4 * escala).dp)) {
                             TextAjustat(
                                 extracte,
-                                mida = (10 * escala).sp,
-                                minim = 6.5.sp,
+                                mida = (13 * escala).sp,
+                                minim = 7.sp,
                                 modifier = Modifier.fillMaxSize(),
                                 color = TintaCarta.copy(alpha = 0.85f),
                                 maxLinies = Int.MAX_VALUE,
