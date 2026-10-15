@@ -118,7 +118,7 @@ fun PantallaInici(vm: JocViewModel, onObreCarta: (String) -> Unit) {
         Spacer(Modifier.height(24.dp))
         SobreView(
             Modifier
-                .fillMaxWidth(0.5f)
+                .fillMaxWidth(0.6f)
                 .graphicsLayer { rotationZ = angle.value }
                 .clickable(enabled = guardats > 0, onClick = obre),
         )
@@ -310,21 +310,7 @@ private fun CartaGirable(
                 Text("?", fontSize = 56.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
         } else {
-            CartaView(carta, extracte = extracte, etiqueta = etiqueta, onClick = onClick)
-            Text(
-                if (nova) stringResource(R.string.nova) else stringResource(R.string.repetida),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 10.dp)
-                    .background(
-                        if (nova) Color(0xFF69F0AE) else Color(0xFFCFCBEA),
-                        RoundedCornerShape(8.dp),
-                    )
-                    .padding(horizontal = 8.dp, vertical = 2.dp),
-            )
+            CartaView(carta, extracte = extracte, etiqueta = etiqueta, nova = nova, onClick = onClick)
         }
     }
 }

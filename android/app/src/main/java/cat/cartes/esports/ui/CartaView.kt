@@ -46,12 +46,14 @@ import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cat.cartes.esports.R
 import cat.cartes.esports.data.Carta
 import cat.cartes.esports.data.banderaPais
 import coil.compose.AsyncImage
@@ -145,7 +147,7 @@ private fun Modifier.holo(actiu: Boolean): Modifier {
     }
 }
 
-private val TraçMotiu = Color.White.copy(alpha = 0.22f)
+private val TraçMotiu = Color.White.copy(alpha = 0.11f)
 
 /** Línies del terreny de joc de cada esport, dibuixades en blanc translúcid sobre el fons. */
 private fun DrawScope.motiuEsport(esport: String?) {
@@ -275,6 +277,7 @@ fun CartaView(
     extracte: String? = null,
     pais: String? = null,
     etiqueta: String? = null,
+    nova: Boolean? = null,
     credit: String? = null,
     onCredit: (() -> Unit)? = null,
     onClick: (() -> Unit)? = null,
@@ -330,6 +333,14 @@ fun CartaView(
                             .background(Color.Black.copy(alpha = 0.35f), RoundedCornerShape(50))
                             .padding(horizontal = (6 * escala).dp, vertical = (2 * escala).dp),
                         fontSize = (16 * escala).sp,
+                    )
+                }
+                nova?.let {
+                    Etiqueta(
+                        if (it) stringResource(R.string.nova) else stringResource(R.string.repetida),
+                        if (it) Color(0xFF1FA463) else Color(0xFF6B6890),
+                        escala,
+                        Modifier.align(Alignment.BottomEnd).padding((8 * escala).dp),
                     )
                 }
                 if (quantitat > 1) {

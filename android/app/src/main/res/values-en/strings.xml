@@ -20,6 +20,8 @@
         <item quantity="other">%d more cards</item>
     </plurals>
     <string name="torna">Back</string>
+    <string name="sobre_nom">Pack</string>
+    <string name="sobre_cartes_n">%1$d cards</string>
     <string name="obre_sobre">Open a pack</string>
     <string name="sobres_guardats">Packs: %1$d of %2$d</string>
     <string name="proper_sobre">Next pack in %1$s</string>

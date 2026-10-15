@@ -20,6 +20,8 @@
         <item quantity="other">Encara %d cartes</item>
     </plurals>
     <string name="torna">Torna</string>
+    <string name="sobre_nom">Sobre</string>
+    <string name="sobre_cartes_n">%1$d cartes</string>
     <string name="obre_sobre">Obre un sobre</string>
     <string name="sobres_guardats">Sobres: %1$d de %2$d</string>
     <string name="proper_sobre">Proper sobre en %1$s</string>
