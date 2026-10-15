@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Cartes Sports</string>
+
+    <string name="tab_inici">Accueil</string>
+    <string name="tab_album">Album</string>
+    <string name="tab_colleccions">Collections</string>
+    <string name="tab_missions">Missions</string>
+    <string name="tab_taller">Atelier</string>
+
+    <string name="monedes_n">%1$d pièces</string>
+    <string name="perfil_titol">Profil</string>
+    <string name="enrere">Retour</string>
+
+    <string name="obre_sobre">Ouvrir un paquet</string>
+    <string name="sobres_guardats">Paquets : %1$d sur %2$d</string>
+    <string name="proper_sobre">Prochain paquet dans %1$s</string>
+    <string name="sobres_plens">Paquets pleins</string>
+    <string name="sense_sobres">Attends le prochain paquet</string>
+    <string name="toca_girar">Touche les cartes pour les retourner</string>
+    <string name="revela_totes">Tout retourner</string>
+    <string name="nova">Nouvelle</string>
+    <string name="repetida">Doublon</string>
+    <string name="continua">Continuer</string>
+    <string name="legendaria_alerta">Légendaire !</string>
+
+    <string name="cerca_carta">Rechercher par nom</string>
+    <string name="tots">Toutes</string>
+    <string name="album_buit">Tu n\'as encore aucune carte. Ouvre un paquet !</string>
+    <string name="cartes_diferents">%1$d cartes différentes</string>
+
+    <string name="esport_futbol">Football</string>
+    <string name="esport_basquet">Basket-ball</string>
+    <string name="esport_tennis">Tennis</string>
+    <string name="esport_atletisme">Athlétisme</string>
+
+    <string name="raresa_1">Commune</string>
+    <string name="raresa_2">Peu commune</string>
+    <string name="raresa_3">Rare</string>
+    <string name="raresa_4">Épique</string>
+    <string name="raresa_5">Légendaire</string>
+
+    <string name="nascut">Né(e) : %1$s</string>
+    <string name="mort">Décédé(e) : %1$s</string>
+    <string name="alcada">Taille : %1$s m</string>
+    <string name="premis_titol">Prix et records</string>
+    <string name="marca_fmt">%1$s : %2$s</string>
+    <string name="premi_any">%1$s (%2$s)</string>
+    <string name="foto_credit">Photo : %1$s · %2$s</string>
+    <string name="text_font">Texte : Wikipédia (%1$s) · CC BY-SA</string>
+    <string name="copies">Exemplaires : %1$d</string>
+    <string name="no_tens">Tu n\'as pas encore cette carte</string>
+    <string name="destrueix_btn">Détruire un exemplaire (+%1$d pièces)</string>
+    <string name="confirma_titol">Détruire la carte</string>
+    <string name="confirma_ultima">C\'est ton dernier exemplaire. Tu perdras la carte.</string>
+    <string name="confirma_coleccions">Elle fait partie de collections commencées : %1$s.</string>
+    <string name="confirma_ok">Détruire</string>
+    <string name="cancela">Annuler</string>
+
+    <string name="colleccions_buit">Il n\'y a pas encore de collections.</string>
+    <string name="progres">%1$d sur %2$d</string>
+    <string name="reclama">Récupérer %1$d pièces</string>
+    <string name="reclamada">Récupérée</string>
+    <string name="col_club">Club : %1$s</string>
+    <string name="col_pais">%1$s : %2$s</string>
+    <string name="col_premi">Prix : %1$s</string>
+    <string name="col_decada">%1$s : nés dans les années %2$s</string>
+    <string name="col_esport_raresa">%1$s : %2$s</string>
+
+    <string name="missio_sobres_avui">Ouvre %1$d paquets aujourd\'hui</string>
+    <string name="missio_sobres_oberts">Ouvre %1$d paquets</string>
+    <string name="missio_diferents">Obtiens %1$d cartes différentes</string>
+    <string name="missio_rara">Obtiens %1$d cartes rares ou mieux</string>
+    <string name="missio_destruir">Détruis %1$d cartes</string>
+    <string name="missio_fabricar">Fabrique %1$d cartes</string>
+    <string name="missio_coleccions">Termine %1$d collections</string>
+    <string name="diaria">Quotidienne</string>
+
+    <string name="taller_destruir">Détruire</string>
+    <string name="taller_fabricar">Fabriquer</string>
+    <string name="destrueix_repetides">Détruire tous les doublons (+%1$d pièces)</string>
+    <string name="sense_repetides">Tu n\'as aucun doublon.</string>
+    <string name="cerca_fabricar">Cherche la carte que tu veux</string>
+    <string name="fabrica_btn">Fabriquer (%1$d pièces)</string>
+    <string name="sense_monedes">Pas assez de pièces</string>
+
+    <string name="idioma">Langue</string>
+    <string name="estadistiques">Statistiques</string>
+    <string name="est_sobres">Paquets ouverts : %1$d</string>
+    <string name="est_cartes">Cartes différentes : %1$d sur %2$d</string>
+    <string name="est_destruides">Cartes détruites : %1$d</string>
+    <string name="est_fabricades">Cartes fabriquées : %1$d</string>
+    <string name="credits">Crédits</string>
+    <string name="credits_text">Données des sportifs : Wikidata (CC0). Photos : Wikimedia Commons, avec auteur et licence sur chaque carte. Textes : Wikipédia (CC BY-SA).</string>
+</resources>

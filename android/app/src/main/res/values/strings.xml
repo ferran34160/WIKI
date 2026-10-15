@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Cartes Esports</string>
+
+    <string name="tab_inici">Inici</string>
+    <string name="tab_album">Àlbum</string>
+    <string name="tab_colleccions">Col·leccions</string>
+    <string name="tab_missions">Missions</string>
+    <string name="tab_taller">Taller</string>
+
+    <string name="monedes_n">%1$d monedes</string>
+    <string name="perfil_titol">Perfil</string>
+    <string name="enrere">Enrere</string>
+
+    <string name="obre_sobre">Obre un sobre</string>
+    <string name="sobres_guardats">Sobres: %1$d de %2$d</string>
+    <string name="proper_sobre">Proper sobre en %1$s</string>
+    <string name="sobres_plens">Sobres plens</string>
+    <string name="sense_sobres">Espera el proper sobre</string>
+    <string name="toca_girar">Toca les cartes per girar-les</string>
+    <string name="revela_totes">Girar totes</string>
+    <string name="nova">Nova</string>
+    <string name="repetida">Repetida</string>
+    <string name="continua">Continua</string>
+    <string name="legendaria_alerta">Llegendària!</string>
+
+    <string name="cerca_carta">Cerca per nom</string>
+    <string name="tots">Totes</string>
+    <string name="album_buit">Encara no tens cap carta. Obre un sobre!</string>
+    <string name="cartes_diferents">%1$d cartes diferents</string>
+
+    <string name="esport_futbol">Futbol</string>
+    <string name="esport_basquet">Bàsquet</string>
+    <string name="esport_tennis">Tennis</string>
+    <string name="esport_atletisme">Atletisme</string>
+
+    <string name="raresa_1">Comuna</string>
+    <string name="raresa_2">Poc comuna</string>
+    <string name="raresa_3">Rara</string>
+    <string name="raresa_4">Èpica</string>
+    <string name="raresa_5">Llegendària</string>
+
+    <string name="nascut">Nascut: %1$s</string>
+    <string name="mort">Mort: %1$s</string>
+    <string name="alcada">Alçada: %1$s m</string>
+    <string name="premis_titol">Premis i rècords</string>
+    <string name="marca_fmt">%1$s: %2$s</string>
+    <string name="premi_any">%1$s (%2$s)</string>
+    <string name="foto_credit">Foto: %1$s · %2$s</string>
+    <string name="text_font">Text: Viquipèdia (%1$s) · CC BY-SA</string>
+    <string name="copies">Còpies: %1$d</string>
+    <string name="no_tens">Encara no tens aquesta carta</string>
+    <string name="destrueix_btn">Destruir una còpia (+%1$d monedes)</string>
+    <string name="confirma_titol">Destruir carta</string>
+    <string name="confirma_ultima">És l\'última còpia que tens. Perdràs la carta.</string>
+    <string name="confirma_coleccions">Forma part de col·leccions que has començat: %1$s.</string>
+    <string name="confirma_ok">Destruir</string>
+    <string name="cancela">Cancel·la</string>
+
+    <string name="colleccions_buit">Encara no hi ha col·leccions.</string>
+    <string name="progres">%1$d de %2$d</string>
+    <string name="reclama">Reclama %1$d monedes</string>
+    <string name="reclamada">Reclamada</string>
+    <string name="col_club">Club: %1$s</string>
+    <string name="col_pais">%1$s: %2$s</string>
+    <string name="col_premi">Premi: %1$s</string>
+    <string name="col_decada">%1$s: nascuts els anys %2$s</string>
+    <string name="col_esport_raresa">%1$s: %2$s</string>
+
+    <string name="missio_sobres_avui">Obre %1$d sobres avui</string>
+    <string name="missio_sobres_oberts">Obre %1$d sobres</string>
+    <string name="missio_diferents">Aconsegueix %1$d cartes diferents</string>
+    <string name="missio_rara">Aconsegueix %1$d cartes rares o millors</string>
+    <string name="missio_destruir">Destrueix %1$d cartes</string>
+    <string name="missio_fabricar">Fabrica %1$d cartes</string>
+    <string name="missio_coleccions">Acaba %1$d col·leccions</string>
+    <string name="diaria">Diària</string>
+
+    <string name="taller_destruir">Destruir</string>
+    <string name="taller_fabricar">Fabricar</string>
+    <string name="destrueix_repetides">Destruir totes les repetides (+%1$d monedes)</string>
+    <string name="sense_repetides">No tens cartes repetides.</string>
+    <string name="cerca_fabricar">Cerca la carta que vols</string>
+    <string name="fabrica_btn">Fabricar (%1$d monedes)</string>
+    <string name="sense_monedes">No tens prou monedes</string>
+
+    <string name="idioma">Idioma</string>
+    <string name="estadistiques">Estadístiques</string>
+    <string name="est_sobres">Sobres oberts: %1$d</string>
+    <string name="est_cartes">Cartes diferents: %1$d de %2$d</string>
+    <string name="est_destruides">Cartes destruïdes: %1$d</string>
+    <string name="est_fabricades">Cartes fabricades: %1$d</string>
+    <string name="credits">Crèdits</string>
+    <string name="credits_text">Dades d\'esportistes: Wikidata (CC0). Fotos: Wikimedia Commons, amb autor i llicència a cada carta. Textos: Viquipèdia (CC BY-SA).</string>
+</resources>
