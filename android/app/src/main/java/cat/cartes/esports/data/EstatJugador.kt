@@ -79,6 +79,10 @@ class EstatJugador(context: Context) :
         readableDatabase.rawQuery("SELECT 1 FROM reclamades WHERE clau=?", arrayOf(clau))
             .use { it.moveToFirst() }
 
+    fun totesReclamades(): Set<String> =
+        readableDatabase.rawQuery("SELECT clau FROM reclamades", null)
+            .use { c -> buildSet { while (c.moveToNext()) add(c.getString(0)) } }
+
     fun marcaReclamada(clau: String) {
         val v = ContentValues().apply { put("clau", clau) }
         writableDatabase.insertWithOnConflict(

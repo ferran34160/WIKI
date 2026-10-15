@@ -38,6 +38,13 @@ class JocViewModel(app: Application) : AndroidViewModel(app) {
     var inventari by mutableStateOf<Map<String, Int>>(emptyMap())
         private set
 
+    /**
+     * Claus de les recompenses ja cobrades (missions i col·leccions). És estat de Compose perquè
+     * les pantalles es refresquin en el moment de cobrar; es desa també a la base de dades.
+     */
+    var reclamades by mutableStateOf<Set<String>>(emptySet())
+        private set
+
     /** Cartes que tens (una per id), per a l'àlbum i les missions. */
     var possedides by mutableStateOf<List<Carta>>(emptyList())
         private set
@@ -54,6 +61,7 @@ class JocViewModel(app: Application) : AndroidViewModel(app) {
         val tick = estat.llegeixLong("sobres_tick", System.currentTimeMillis())
         sobres = EstatSobres(guardats, tick)
         idioma = estat.llegeixText("idioma") ?: "ca"
+        reclamades = estat.totesReclamades()
         recarregaInventari()
         tick()
     }
@@ -176,13 +184,13 @@ class JocViewModel(app: Application) : AndroidViewModel(app) {
         return Economia.recompensaColeccio(rareses)
     }
 
-    fun coleccioReclamada(id: Long): Boolean = estat.reclamada("col:$id")
+    fun coleccioReclamada(id: Long): Boolean = "col:$id" in reclamades
 
     fun reclamaColeccio(id: Long): Int {
         val (tens, total) = progresColeccio(id)
         if (total == 0 || tens < total || coleccioReclamada(id)) return 0
         val guany = recompensaColeccio(id)
-        estat.marcaReclamada("col:$id")
+        marcaReclamada("col:$id")
         canviaMonedes(+guany)
         augmenta("st_colleccions")
         return guany
@@ -209,11 +217,16 @@ class JocViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun claveMissio(m: Missio) = if (m.diaria) "${m.id}:${avui()}" else m.id
 
-    fun missioReclamada(m: Missio): Boolean = estat.reclamada(claveMissio(m))
+    fun missioReclamada(m: Missio): Boolean = claveMissio(m) in reclamades
+
+    private fun marcaReclamada(clau: String) {
+        estat.marcaReclamada(clau)
+        reclamades = reclamades + clau
+    }
 
     fun reclamaMissio(m: Missio): Int {
         if (missioReclamada(m) || progres(m) < m.objectiu) return 0
-        estat.marcaReclamada(claveMissio(m))
+        marcaReclamada(claveMissio(m))
         canviaMonedes(+m.recompensa)
         return m.recompensa
     }
