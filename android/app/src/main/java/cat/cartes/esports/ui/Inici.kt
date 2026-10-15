@@ -62,6 +62,7 @@ import cat.cartes.esports.game.JocViewModel
 import cat.cartes.esports.game.ResultatSobre
 import cat.cartes.esports.game.Sobres
 import kotlin.math.sin
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
@@ -155,6 +156,8 @@ fun PantallaInici(vm: JocViewModel, onObreCarta: (String) -> Unit) {
     }
 }
 
+private const val TEMPS_GIR_LLEGENDARIA = 1800
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ObertureSobre(
@@ -169,9 +172,17 @@ private fun ObertureSobre(
     val vistes = remember(res) { mutableStateListOf(*Array(total) { false }) }
     val extractes = remember(res, vm.idioma) { res.cartes.map { vm.repo.text(it.id, vm.idioma)?.text } }
     val actual = pager.currentPage
-    LaunchedEffect(actual) { vistes[actual] = true }
+    // Les llegendàries giren més a poc a poc; el confeti surt quan ja s'han revelat.
+    var llegendariaRevelada by remember(res) { mutableStateOf(false) }
+    LaunchedEffect(actual) {
+        llegendariaRevelada = false
+        vistes[actual] = true
+        if (res.cartes[actual].raresa == 5) {
+            delay(TEMPS_GIR_LLEGENDARIA.toLong())
+            llegendariaRevelada = true
+        }
+    }
     val queden = vistes.count { !it }
-    val llegendariaVista = res.cartes.indices.any { vistes[it] && res.cartes[it].raresa == 5 }
     val resources = LocalContext.current.resources
 
     Box(Modifier.fillMaxSize()) {
@@ -245,7 +256,7 @@ private fun ObertureSobre(
                 )
             }
         }
-        if (llegendariaVista) {
+        if (llegendariaRevelada) {
             Confeti()
             Text(
                 stringResource(R.string.legendaria_alerta),
@@ -269,7 +280,7 @@ private fun CartaGirable(
 ) {
     val rotacio by animateFloatAsState(
         targetValue = if (girada) 0f else 180f,
-        animationSpec = tween(550),
+        animationSpec = tween(if (carta.raresa == 5) TEMPS_GIR_LLEGENDARIA else 550),
         label = "gira",
     )
     val densitat = LocalDensity.current.density

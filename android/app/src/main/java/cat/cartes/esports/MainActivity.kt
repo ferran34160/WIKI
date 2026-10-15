@@ -161,7 +161,7 @@ private fun ArrelJoc(vm: JocViewModel) {
             val carta = cartaOberta
             val coleccio = coleccioOberta
             when {
-                carta != null -> DetallCarta(carta, vm)
+                carta != null -> DetallCarta(carta, vm, onTorna = { cartaOberta = null })
                 perfilObert -> PantallaPerfil(vm)
                 pestanya == 0 -> PantallaInici(vm, onObreCarta = { cartaOberta = it })
                 pestanya == 1 -> PantallaAlbum(vm, onObreCarta = { cartaOberta = it })

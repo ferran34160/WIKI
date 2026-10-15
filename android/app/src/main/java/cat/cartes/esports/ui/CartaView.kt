@@ -167,11 +167,17 @@ fun CartaView(
     compacta: Boolean = false,
     quantitat: Int = 0,
     extracte: String? = null,
+    pais: String? = null,
+    credit: String? = null,
+    onCredit: (() -> Unit)? = null,
     onClick: (() -> Unit)? = null,
 ) {
     val colorMarc = colorRaresa(carta.raresa)
     val (dalt, baix) = fonsRaresa(carta.raresa)
     val forma = RoundedCornerShape(18.dp)
+    val esport = nomEsport(carta.esport)
+    val etiquetaEsport = listOfNotNull(esport.takeIf { it.isNotBlank() }, pais?.takeIf { it.isNotBlank() })
+        .joinToString(" · ")
     BoxWithConstraints(
         modifier
             .aspectRatio(0.68f)
@@ -185,7 +191,7 @@ fun CartaView(
         val escala = (maxWidth.value / 180f).coerceIn(0.75f, 1.7f)
         val fonsFoto = lerp(dalt, baix, 0.58f)
         Column(Modifier.fillMaxSize()) {
-            Box(Modifier.weight(if (extracte != null) 0.5f else 0.58f).fillMaxWidth()) {
+            Box(Modifier.weight(if (extracte != null) 0.42f else 0.58f).fillMaxWidth()) {
                 Icon(
                     Icons.Default.Person,
                     contentDescription = null,
@@ -226,19 +232,19 @@ fun CartaView(
             }
             Column(
                 Modifier
-                    .weight(if (extracte != null) 0.5f else 0.42f)
+                    .weight(if (extracte != null) 0.58f else 0.42f)
                     .fillMaxWidth()
                     .padding(horizontal = (10 * escala).dp, vertical = (4 * escala).dp),
             ) {
                 TextAjustat(
                     carta.nom,
-                    mida = ((if (extracte != null) 14 else 16) * escala).sp,
+                    mida = ((if (extracte != null) 13 else 16) * escala).sp,
                     minim = (9 * escala).sp,
                     pes = FontWeight.ExtraBold,
                     maxLinies = 2,
                 )
                 TextAjustat(
-                    nomEsport(carta.esport),
+                    etiquetaEsport,
                     mida = (11 * escala).sp,
                     minim = (8 * escala).sp,
                     color = TintaCarta.copy(alpha = 0.7f),
@@ -248,8 +254,8 @@ fun CartaView(
                         Box(Modifier.weight(1f).fillMaxWidth().padding(vertical = (4 * escala).dp)) {
                             TextAjustat(
                                 extracte,
-                                mida = (12 * escala).sp,
-                                minim = (6.5f * escala).coerceAtLeast(9f).sp,
+                                mida = (10 * escala).sp,
+                                minim = 6.5.sp,
                                 modifier = Modifier.fillMaxSize(),
                                 color = TintaCarta.copy(alpha = 0.85f),
                                 maxLinies = Int.MAX_VALUE,
@@ -283,6 +289,15 @@ fun CartaView(
                                 alineacio = TextAlign.End,
                             )
                         }
+                    }
+                    if (credit != null) {
+                        TextAjustat(
+                            credit,
+                            mida = (8 * escala).sp,
+                            minim = 5.5.sp,
+                            modifier = if (onCredit != null) Modifier.clickable(onClick = onCredit) else Modifier,
+                            color = TintaCarta.copy(alpha = 0.55f),
+                        )
                     }
                 }
             }

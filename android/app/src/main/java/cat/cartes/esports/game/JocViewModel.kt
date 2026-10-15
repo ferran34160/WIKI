@@ -85,12 +85,10 @@ class JocViewModel(app: Application) : AndroidViewModel(app) {
         sobres = Sobres.gasta(sobres, ara)
         desaSobres()
 
-        val ids = ArrayList<String>(Sobres.CARTES_PER_SOBRE)
-        repeat(Sobres.CARTES_PER_SOBRE) {
-            val raresa = motor.triaRaresa(raresesDisponibles, rnd)
-            repo.cartaAleatoria(raresa, rnd)?.let { ids.add(it) }
+        val ids = motor.triaCartes(Sobres.CARTES_PER_SOBRE, raresesDisponibles, rnd) { raresa, excloses ->
+            repo.cartaAleatoria(raresa, rnd, excloses)
         }
-        val perId = repo.cartes(ids.distinct()).associateBy { it.id }
+        val perId = repo.cartes(ids).associateBy { it.id }
         val cartes = ids.mapNotNull { perId[it] }
         val noves = cartes.map { it.id }.filter { (inventari[it] ?: 0) == 0 }.toSet()
         cartes.forEach { estat.canvia(it.id, +1) }

@@ -19,6 +19,7 @@
         <item quantity="one">Aún %d carta</item>
         <item quantity="other">Aún %d cartas</item>
     </plurals>
+    <string name="torna">Volver</string>
     <string name="obre_sobre">Abrir un sobre</string>
     <string name="sobres_guardats">Sobres: %1$d de %2$d</string>
     <string name="proper_sobre">Próximo sobre en %1$s</string>

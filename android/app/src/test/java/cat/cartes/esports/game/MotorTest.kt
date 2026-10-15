@@ -61,4 +61,28 @@ class MotorTest {
         assertEquals(Sobres.MS_PER_SOBRE, Sobres.msFinsProper(e, 0L)) // rellotge endarrerit
         assertEquals(0L, Sobres.msFinsProper(EstatSobres(Sobres.MAX_GUARDATS, 0L), 5L))
     }
+
+    @Test
+    fun `un sobre mai porta cartes repetides`() {
+        val motor = MotorSobres()
+        // Només 7 cartes en total, de raresa 1 i 5: força que la tirada s'esgoti sovint.
+        val cartes = mapOf(1 to listOf("a", "b", "c", "d", "e"), 5 to listOf("x", "y"))
+        val rnd = Random(7)
+        repeat(2000) {
+            val sobre = motor.triaCartes(5, cartes.keys, rnd) { raresa, excloses ->
+                cartes.getValue(raresa).filter { it !in excloses }.randomOrNull(rnd)
+            }
+            assertEquals(5, sobre.size)
+            assertEquals(5, sobre.toSet().size)
+        }
+    }
+
+    @Test
+    fun `si no hi ha prou cartes el sobre en porta menys sense repetir`() {
+        val motor = MotorSobres()
+        val sobre = motor.triaCartes(5, setOf(1), Random(3)) { _, excloses ->
+            listOf("a", "b").firstOrNull { it !in excloses }
+        }
+        assertEquals(listOf("a", "b"), sobre.sorted())
+    }
 }

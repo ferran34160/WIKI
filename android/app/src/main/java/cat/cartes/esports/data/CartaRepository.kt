@@ -98,13 +98,16 @@ class CartaRepository(context: Context) {
             it.getInt(0)
         }.first()
 
-    /** Id d'una carta qualsevol d'una raresa, o null si no n'hi ha. */
-    fun cartaAleatoria(raresa: Int, rnd: Random): String? {
-        val n = nombreRaresa(raresa)
+    /** Id d'una carta qualsevol d'una raresa que no sigui a [excloses], o null si no n'hi ha. */
+    fun cartaAleatoria(raresa: Int, rnd: Random, excloses: Set<String> = emptySet()): String? {
+        val filtre = if (excloses.isEmpty()) "" else
+            " AND id NOT IN (" + excloses.joinToString(",") { "?" } + ")"
+        val args = arrayOf(raresa.toString()) + excloses.toTypedArray()
+        val n = consulta("SELECT COUNT(*) FROM cartes WHERE raresa=?$filtre", args) { it.getInt(0) }.first()
         if (n == 0) return null
         return consulta(
-            "SELECT id FROM cartes WHERE raresa=? LIMIT 1 OFFSET ?",
-            arrayOf(raresa.toString(), rnd.nextInt(n).toString()),
+            "SELECT id FROM cartes WHERE raresa=?$filtre LIMIT 1 OFFSET ?",
+            args + rnd.nextInt(n).toString(),
         ) { it.getString(0) }.firstOrNull()
     }
 

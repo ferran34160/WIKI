@@ -43,6 +43,30 @@ class MotorSobres(
         }
         return pesos.last().first
     }
+
+    /**
+     * Tria les cartes d'un sobre sense repetir-ne cap. [cartaAleatoria] dona una carta d'una raresa
+     * que no sigui entre les ja triades (o null si ja no en queden). Si la raresa tirada s'ha
+     * esgotat, es prova la més propera; si no en queda cap, el sobre porta menys cartes.
+     */
+    fun triaCartes(
+        quantes: Int,
+        disponibles: Set<Int>,
+        rnd: Random,
+        cartaAleatoria: (raresa: Int, excloses: Set<String>) -> String?,
+    ): List<String> {
+        val triades = LinkedHashSet<String>()
+        repeat(quantes) {
+            val tirada = triaRaresa(disponibles, rnd)
+            val ordre = disponibles.sortedBy { kotlin.math.abs(it - tirada) }
+            for (raresa in ordre) {
+                val id = cartaAleatoria(raresa, triades) ?: continue
+                triades.add(id)
+                break
+            }
+        }
+        return triades.toList()
+    }
 }
 
 /** Sobres guardats i compte enrere. Tot en mil·lisegons de rellotge. */

@@ -1,15 +1,19 @@
 package cat.cartes.esports.ui
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -32,11 +36,12 @@ import cat.cartes.esports.data.Carta
 import cat.cartes.esports.game.Economia
 import cat.cartes.esports.game.JocViewModel
 
-/** Fitxa completa d'una carta, amb les dades en l'ordre acordat: premis abans del text breu. */
+/** Fitxa d'una carta: tota la informació va dins la carta, ampliada; fora només hi ha els botons. */
 @Composable
-fun DetallCarta(cartaId: String, vm: JocViewModel) {
+fun DetallCarta(cartaId: String, vm: JocViewModel, onTorna: () -> Unit) {
     val carta: Carta = remember(cartaId) { vm.repo.carta(cartaId) } ?: return
     val llengua = vm.idioma
+    val ctx = LocalContext.current
     val premis = remember(cartaId, llengua) { vm.repo.premis(cartaId, llengua) }
     val marques = remember(cartaId, llengua) { vm.repo.marques(cartaId, llengua) }
     val text = remember(cartaId, llengua) { vm.repo.text(cartaId, llengua) }
@@ -45,82 +50,55 @@ fun DetallCarta(cartaId: String, vm: JocViewModel) {
     val uri = LocalUriHandler.current
     var confirma by remember { mutableStateOf(false) }
 
-    Column(
-        Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        CartaView(carta, modifier = Modifier.fillMaxWidth(0.65f))
-        Spacer(Modifier.height(12.dp))
-        Text(
-            if (quantitat > 0) stringResource(R.string.copies, quantitat)
-            else stringResource(R.string.no_tens),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Spacer(Modifier.height(12.dp))
-
-        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(carta.nom, fontSize = 22.sp, fontWeight = FontWeight.Bold)
-            carta.naixement?.let { Text(stringResource(R.string.nascut, it)) }
-            carta.defuncio?.let { Text(stringResource(R.string.mort, it)) }
-            carta.alcadaM?.let { Text(stringResource(R.string.alcada, "%.2f".format(it))) }
-            pais?.takeIf { it.isNotBlank() }?.let { Text(it) }
-
-            // Premis i rècords: només si n'hi ha
+    // Premis i rècords (només si n'hi ha) abans del text breu, tot dins la carta.
+    val cos = remember(premis, marques, text, ctx) {
+        buildString {
             if (premis.isNotEmpty() || marques.isNotEmpty()) {
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    stringResource(R.string.premis_titol),
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                )
+                append(ctx.getString(R.string.premis_titol)).append('\n')
                 premis.forEach { p ->
-                    Text(
-                        if (p.any != null) stringResource(R.string.premi_any, p.nom, p.any.take(4))
-                        else p.nom,
-                    )
+                    append("• ")
+                    append(if (p.any != null) ctx.getString(R.string.premi_any, p.nom, p.any.take(4)) else p.nom)
+                    append('\n')
                 }
                 marques.forEach { m ->
                     val valor = "%.2f".format(m.valor).trimEnd('0').trimEnd('.') +
                         (m.unitat?.let { " $it" } ?: "")
-                    Text(stringResource(R.string.marca_fmt, m.disciplina, valor))
+                    append("• ").append(ctx.getString(R.string.marca_fmt, m.disciplina, valor)).append('\n')
                 }
+                append('\n')
             }
+            text?.let { append(it.text) }
+        }.trim().ifEmpty { null }
+    }
+    val credit = if (carta.fotoAutor != null || carta.fotoLlicencia != null) {
+        ctx.getString(R.string.foto_credit, carta.fotoAutor ?: "?", carta.fotoLlicencia ?: "?")
+    } else null
 
-            // Text breu
-            if (text != null) {
-                Spacer(Modifier.height(8.dp))
-                Text(text.text)
-                Text(
-                    stringResource(R.string.text_font, text.llengua),
-                    fontSize = 11.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.clickable(enabled = text.url != null) {
-                        text.url?.let { uri.openUri(it) }
-                    },
-                )
+    Column(Modifier.fillMaxSize().padding(horizontal = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = onTorna) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.torna))
             }
-
-            // Atribució de la foto (obligatòria per la llicència)
-            if (carta.fotoAutor != null || carta.fotoLlicencia != null) {
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    stringResource(
-                        R.string.foto_credit,
-                        carta.fotoAutor ?: "?",
-                        carta.fotoLlicencia ?: "?",
-                    ),
-                    fontSize = 11.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.clickable(enabled = carta.fotoPagina != null) {
-                        carta.fotoPagina?.let { uri.openUri(it) }
-                    },
-                )
-            }
+            Text(
+                if (quantitat > 0) stringResource(R.string.copies, quantitat)
+                else stringResource(R.string.no_tens),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
-
+        BoxWithConstraints(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
+            val ample = minOf(maxWidth, maxHeight * 0.68f)
+            CartaView(
+                carta,
+                modifier = Modifier.width(ample),
+                extracte = cos,
+                pais = pais,
+                credit = credit,
+                onCredit = carta.fotoPagina?.let { pagina -> { uri.openUri(pagina) } },
+            )
+        }
         if (quantitat > 0) {
-            Spacer(Modifier.height(16.dp))
             Button(
+                modifier = Modifier.padding(vertical = 12.dp),
                 onClick = {
                     if (quantitat > 1 && vm.coleccionsEnCurs(cartaId).isEmpty()) {
                         vm.destrueix(carta, 1)
@@ -131,6 +109,8 @@ fun DetallCarta(cartaId: String, vm: JocViewModel) {
             ) {
                 Text(stringResource(R.string.destrueix_btn, Economia.valorDestruccio(carta.raresa)))
             }
+        } else {
+            Spacer(Modifier.height(12.dp))
         }
     }
 
