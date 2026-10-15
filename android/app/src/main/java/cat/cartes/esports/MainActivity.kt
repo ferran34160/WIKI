@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -51,6 +52,7 @@ import cat.cartes.esports.ui.PantallaInici
 import cat.cartes.esports.ui.PantallaMissions
 import cat.cartes.esports.ui.PantallaPerfil
 import cat.cartes.esports.ui.PantallaTaller
+import cat.cartes.esports.ui.PantallaTotes
 import cat.cartes.esports.ui.TemaCartes
 import java.util.Locale
 import kotlinx.coroutines.delay
@@ -87,6 +89,7 @@ private data class Pestanya(val titol: Int, val icona: ImageVector)
 private val PESTANYES = listOf(
     Pestanya(R.string.tab_inici, Icons.Default.Home),
     Pestanya(R.string.tab_album, Icons.Default.Favorite),
+    Pestanya(R.string.tab_totes, Icons.Default.Search),
     Pestanya(R.string.tab_missions, Icons.Default.CheckCircle),
     Pestanya(R.string.tab_taller, Icons.Default.Build),
 )
@@ -158,7 +161,8 @@ private fun ArrelJoc(vm: JocViewModel) {
                 perfilObert -> PantallaPerfil(vm)
                 pestanya == 0 -> PantallaInici(vm, onObreCarta = { cartaOberta = it })
                 pestanya == 1 -> PantallaAlbum(vm, onObreCarta = { cartaOberta = it })
-                pestanya == 2 -> PantallaMissions(vm)
+                pestanya == 2 -> PantallaTotes(vm, onObreCarta = { cartaOberta = it })
+                pestanya == 3 -> PantallaMissions(vm)
                 else -> PantallaTaller(vm)
             }
         }

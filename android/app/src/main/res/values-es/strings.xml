@@ -4,6 +4,9 @@
 
     <string name="tab_inici">Inicio</string>
     <string name="tab_album">Álbum</string>
+    <string name="tab_totes">Todas</string>
+    <string name="em_falten">Me faltan</string>
+    <string name="cartes_total_n">%1$d cartas</string>
     <string name="tab_missions">Misiones</string>
     <string name="tab_taller">Taller</string>
 

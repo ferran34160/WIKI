@@ -90,6 +90,51 @@ class CartaRepository(context: Context) {
             ::mapaCarta,
         )
 
+    /** Condicions SQL (i arguments) del catàleg segons els filtres; [excloses] són les cartes que ja es tenen. */
+    private fun filtreCataleg(
+        text: String, esport: String?, raresa: Int?, excloses: Collection<String>?,
+    ): Pair<String, Array<String>> {
+        val condicions = ArrayList<String>()
+        val args = ArrayList<String>()
+        if (text.isNotBlank()) {
+            condicions += "nom LIKE ?"
+            args += "%" + text.trim() + "%"
+        }
+        if (esport != null) {
+            condicions += "esport=?"
+            args += esport
+        }
+        if (raresa != null) {
+            condicions += "raresa=?"
+            args += raresa.toString()
+        }
+        if (!excloses.isNullOrEmpty()) {
+            // Els ids són QID de Wikidata: s'incrusten com a literals (només lletres i xifres) per no
+            // topar amb el límit de variables d'SQLite.
+            val segurs = excloses.filter { id -> id.all { it.isLetterOrDigit() || it == '_' } }
+            condicions += "id NOT IN (" + segurs.joinToString(",") { "'$it'" } + ")"
+        }
+        val onClau = if (condicions.isEmpty()) "" else " WHERE " + condicions.joinToString(" AND ")
+        return onClau to args.toTypedArray()
+    }
+
+    /** Pàgina del catàleg de totes les cartes, de les més rares i famoses a les més comunes. */
+    fun cataleg(
+        text: String, esport: String?, raresa: Int?, excloses: Collection<String>?, limit: Int, offset: Int,
+    ): List<Carta> {
+        val (onClau, args) = filtreCataleg(text, esport, raresa, excloses)
+        return consulta(
+            "SELECT $COLS_CARTA FROM cartes$onClau ORDER BY raresa DESC, visites DESC, id LIMIT ? OFFSET ?",
+            args + limit.toString() + offset.toString(),
+            ::mapaCarta,
+        )
+    }
+
+    fun catalegTotal(text: String, esport: String?, raresa: Int?, excloses: Collection<String>?): Int {
+        val (onClau, args) = filtreCataleg(text, esport, raresa, excloses)
+        return consulta("SELECT COUNT(*) FROM cartes$onClau", args) { it.getInt(0) }.first()
+    }
+
     fun totalCartes(): Int = consulta("SELECT COUNT(*) FROM cartes") { it.getInt(0) }.first()
 
     /** Nombre de cartes que hi ha d'una raresa (1..5). */
