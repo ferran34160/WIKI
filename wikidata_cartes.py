@@ -280,13 +280,20 @@ def tros(con, esport, qocc, ini, fi):
     return True
 
 
-def fase_ids(con, esports, prova=0):
+def fase_ids(con, esports, prova=0, any_prova=1995, ids_de=None):
     print("== ids")
+    if ids_de:
+        # Conserva les cartes d'un joc_cartes.sqlite anterior: es tornen a baixar amb els nous.
+        antic = sqlite3.connect(ids_de)
+        files = antic.execute("SELECT id, esport FROM cartes").fetchall()
+        con.executemany("INSERT OR IGNORE INTO ids VALUES (?, ?)", files)
+        con.commit()
+        print("   %d cartes conservades de %s" % (len(files), ids_de))
     for esport in esports:
         qocc = ESPORTS[esport][0]
         if prova:
             # Mode prova: un sol any, N esportistes, sense marcar la feina com a feta.
-            ids = sparql_ids(qocc, 1995, 1996)[:prova]
+            ids = sparql_ids(qocc, any_prova, any_prova + 1)[:prova]
             con.executemany("INSERT OR IGNORE INTO ids VALUES (?, ?)", [(q, esport) for q in ids])
             con.commit()
             print("   %s (prova): %d" % (esport, len(ids)))
@@ -733,7 +740,11 @@ def main():
     ap.add_argument("--esports", default=",".join(ESPORTS),
                     help="llista separada per comes (per defecte: %s)" % ",".join(ESPORTS))
     ap.add_argument("--prova", type=int, default=0,
-                    help="mode prova: només N esportistes per esport (nascuts el 1995)")
+                    help="mode prova: només N esportistes per esport (de l'any de --any-prova)")
+    ap.add_argument("--any-prova", type=int, default=1995,
+                    help="any de naixement del mode prova (per defecte 1995)")
+    ap.add_argument("--ids-de", default=None, metavar="JOC_CARTES.SQLITE",
+                    help="afegeix també els ids de les cartes d'aquest joc_cartes.sqlite")
     args = ap.parse_args()
 
     UA = "CartesEsports/0.1 (%s) python-urllib" % args.contacte
@@ -753,7 +764,7 @@ def main():
     try:
         if "ids" in fases:
             comprova_esports(esports)
-            fase_ids(con, esports, args.prova)
+            fase_ids(con, esports, args.prova, args.any_prova, args.ids_de)
         if "detalls" in fases:
             fase_detalls(con)
         if "etiquetes" in fases:
