@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,9 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cat.cartes.esports.game.JocViewModel
 import cat.cartes.esports.ui.DetallCarta
-import cat.cartes.esports.ui.DetallColeccio
 import cat.cartes.esports.ui.PantallaAlbum
-import cat.cartes.esports.ui.PantallaColleccions
 import cat.cartes.esports.ui.PantallaInici
 import cat.cartes.esports.ui.PantallaMissions
 import cat.cartes.esports.ui.PantallaPerfil
@@ -90,7 +87,6 @@ private data class Pestanya(val titol: Int, val icona: ImageVector)
 private val PESTANYES = listOf(
     Pestanya(R.string.tab_inici, Icons.Default.Home),
     Pestanya(R.string.tab_album, Icons.Default.Favorite),
-    Pestanya(R.string.tab_colleccions, Icons.Default.Star),
     Pestanya(R.string.tab_missions, Icons.Default.CheckCircle),
     Pestanya(R.string.tab_taller, Icons.Default.Build),
 )
@@ -99,7 +95,6 @@ private val PESTANYES = listOf(
 private fun ArrelJoc(vm: JocViewModel) {
     var pestanya by rememberSaveable { mutableIntStateOf(0) }
     var cartaOberta by rememberSaveable { mutableStateOf<String?>(null) }
-    var coleccioOberta by rememberSaveable { mutableStateOf<Long?>(null) }
     var perfilObert by rememberSaveable { mutableStateOf(false) }
 
     // Rellotge dels sobres: s'actualitza cada segon mentre l'app és visible.
@@ -110,11 +105,10 @@ private fun ArrelJoc(vm: JocViewModel) {
         }
     }
 
-    BackHandler(enabled = cartaOberta != null || coleccioOberta != null || perfilObert) {
+    BackHandler(enabled = cartaOberta != null || perfilObert) {
         when {
             cartaOberta != null -> cartaOberta = null
-            perfilObert -> perfilObert = false
-            else -> coleccioOberta = null
+            else -> perfilObert = false
         }
     }
 
@@ -148,7 +142,6 @@ private fun ArrelJoc(vm: JocViewModel) {
                         onClick = {
                             pestanya = i
                             cartaOberta = null
-                            coleccioOberta = null
                             perfilObert = false
                         },
                         icon = { Icon(p.icona, contentDescription = null) },
@@ -160,16 +153,12 @@ private fun ArrelJoc(vm: JocViewModel) {
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             val carta = cartaOberta
-            val coleccio = coleccioOberta
             when {
                 carta != null -> DetallCarta(carta, vm, onTorna = { cartaOberta = null })
                 perfilObert -> PantallaPerfil(vm)
                 pestanya == 0 -> PantallaInici(vm, onObreCarta = { cartaOberta = it })
                 pestanya == 1 -> PantallaAlbum(vm, onObreCarta = { cartaOberta = it })
-                pestanya == 2 && coleccio != null ->
-                    DetallColeccio(coleccio, vm, onObreCarta = { cartaOberta = it })
-                pestanya == 2 -> PantallaColleccions(vm, onObre = { coleccioOberta = it })
-                pestanya == 3 -> PantallaMissions(vm)
+                pestanya == 2 -> PantallaMissions(vm)
                 else -> PantallaTaller(vm)
             }
         }

@@ -4,7 +4,6 @@
 
     <string name="tab_inici">Home</string>
     <string name="tab_album">Album</string>
-    <string name="tab_colleccions">Collections</string>
     <string name="tab_missions">Missions</string>
     <string name="tab_taller">Workshop</string>
 
@@ -63,19 +62,12 @@
     <string name="destrueix_btn">Destroy one copy (+%1$d coins)</string>
     <string name="confirma_titol">Destroy card</string>
     <string name="confirma_ultima">This is your last copy. You will lose the card.</string>
-    <string name="confirma_coleccions">It is part of collections you have started: %1$s.</string>
     <string name="confirma_ok">Destroy</string>
     <string name="cancela">Cancel</string>
 
-    <string name="colleccions_buit">There are no collections yet.</string>
     <string name="progres">%1$d of %2$d</string>
     <string name="reclama">Claim %1$d coins</string>
     <string name="reclamada">Claimed</string>
-    <string name="col_club">Club: %1$s</string>
-    <string name="col_pais">%1$s: %2$s</string>
-    <string name="col_premi">Award: %1$s</string>
-    <string name="col_decada">%1$s: born in the %2$ss</string>
-    <string name="col_esport_raresa">%1$s: %2$s</string>
 
     <string name="missio_sobres_avui">Open %1$d packs today</string>
     <string name="missio_sobres_oberts">Open %1$d packs</string>
@@ -83,7 +75,6 @@
     <string name="missio_rara">Get %1$d rare or better cards</string>
     <string name="missio_destruir">Destroy %1$d cards</string>
     <string name="missio_fabricar">Craft %1$d cards</string>
-    <string name="missio_coleccions">Complete %1$d collections</string>
     <string name="diaria">Daily</string>
 
     <string name="taller_destruir">Destroy</string>

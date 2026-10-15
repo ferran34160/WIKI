@@ -9,7 +9,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import cat.cartes.esports.data.Carta
 import cat.cartes.esports.data.CartaRepository
-import cat.cartes.esports.data.Coleccio
 import cat.cartes.esports.data.EstatJugador
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -49,8 +48,6 @@ class JocViewModel(app: Application) : AndroidViewModel(app) {
     var possedides by mutableStateOf<List<Carta>>(emptyList())
         private set
 
-    val coleccions: List<Coleccio> by lazy { repo.coleccions() }
-    private val membres: Map<Long, List<String>> by lazy { repo.membresColeccions() }
     private val raresesDisponibles: Set<Int> by lazy {
         (Raresa.MIN..Raresa.MAX).filter { repo.nombreRaresa(it) > 0 }.toSet()
     }
@@ -152,13 +149,6 @@ class JocViewModel(app: Application) : AndroidViewModel(app) {
     fun monedesPerRepetides(): Int =
         possedides.sumOf { Economia.valorDestruccio(it.raresa) * repetides(it.id) }
 
-    /** Col·leccions on la carta és i en què ja tens alguna altra carta (avís en destruir). */
-    fun coleccionsEnCurs(cartaId: String): List<Coleccio> =
-        coleccions.filter { col ->
-            val ids = membres[col.id].orEmpty()
-            cartaId in ids && ids.any { it != cartaId && (inventari[it] ?: 0) > 0 }
-        }
-
     fun fabrica(carta: Carta): Boolean {
         val cost = Economia.costFabricar(carta.raresa)
         if (monedes < cost) return false
@@ -168,39 +158,6 @@ class JocViewModel(app: Application) : AndroidViewModel(app) {
         recarregaInventari()
         return true
     }
-
-    // ---- Col·leccions -------------------------------------------------------------
-
-    fun idsColeccio(id: Long): List<String> = membres[id].orEmpty()
-
-    fun progresColeccio(id: Long): Pair<Int, Int> {
-        val ids = membres[id].orEmpty()
-        return ids.count { (inventari[it] ?: 0) > 0 } to ids.size
-    }
-
-    fun recompensaColeccio(id: Long): Int {
-        val ids = membres[id].orEmpty()
-        val rareses = repo.cartes(ids).map { it.raresa }
-        return Economia.recompensaColeccio(rareses)
-    }
-
-    fun coleccioReclamada(id: Long): Boolean = "col:$id" in reclamades
-
-    fun reclamaColeccio(id: Long): Int {
-        val (tens, total) = progresColeccio(id)
-        if (total == 0 || tens < total || coleccioReclamada(id)) return 0
-        val guany = recompensaColeccio(id)
-        marcaReclamada("col:$id")
-        canviaMonedes(+guany)
-        augmenta("st_colleccions")
-        return guany
-    }
-
-    private fun coleccionsCompletades(): Int =
-        coleccions.count { col ->
-            val ids = membres[col.id].orEmpty()
-            ids.isNotEmpty() && ids.all { (inventari[it] ?: 0) > 0 }
-        }
 
     // ---- Missions -----------------------------------------------------------------
 
@@ -212,7 +169,6 @@ class JocViewModel(app: Application) : AndroidViewModel(app) {
         TipusMissio.RARA_O_MES -> possedides.count { it.raresa >= 3 }
         TipusMissio.CARTES_DESTRUIDES -> estat.llegeixLong("st_destruides").toInt()
         TipusMissio.CARTES_FABRICADES -> estat.llegeixLong("st_fabricades").toInt()
-        TipusMissio.COLECCIONS_COMPLETADES -> coleccionsCompletades()
     }
 
     private fun claveMissio(m: Missio) = if (m.diaria) "${m.id}:${avui()}" else m.id

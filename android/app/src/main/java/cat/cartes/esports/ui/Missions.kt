@@ -40,7 +40,6 @@ private fun textMissio(m: Missio): String = when (m.tipus) {
     TipusMissio.RARA_O_MES -> stringResource(R.string.missio_rara, m.objectiu)
     TipusMissio.CARTES_DESTRUIDES -> stringResource(R.string.missio_destruir, m.objectiu)
     TipusMissio.CARTES_FABRICADES -> stringResource(R.string.missio_fabricar, m.objectiu)
-    TipusMissio.COLECCIONS_COMPLETADES -> stringResource(R.string.missio_coleccions, m.objectiu)
 }
 
 @Composable

@@ -159,40 +159,6 @@ class CartaRepository(context: Context) {
                 else marques.maxBy { it.first.valor }.first
             }
 
-    /**
-     * Etiqueta de col·lecció de la carta: el nom del club de la col·lecció (tipus «club»)
-     * més gran que la conté, o null si no en té cap.
-     */
-    fun etiquetaColleccio(cartaId: String, llengua: String): String? {
-        val clau = consulta(
-            "SELECT c.clau FROM coleccions c JOIN coleccio_carta cc ON cc.coleccio_id = c.id " +
-                "WHERE cc.carta_id=? AND c.tipus='club' ORDER BY c.mida DESC, c.id LIMIT 1",
-            arrayOf(cartaId),
-        ) { it.text(0) }.firstOrNull()
-        return etiqueta(clau, llengua)?.takeIf { !esQid(it) }
-    }
-
-    // ---- Col·leccions ---------------------------------------------------
-
-    fun coleccions(): List<Coleccio> =
-        consulta("SELECT id, tipus, clau, esport, mida FROM coleccions ORDER BY mida DESC, id") {
-            Coleccio(it.getLong(0), it.getString(1), it.text(2), it.text(3), it.getInt(4))
-        }
-
-    fun idsColeccio(coleccioId: Long): List<String> =
-        consulta(
-            "SELECT carta_id FROM coleccio_carta WHERE coleccio_id=?",
-            arrayOf(coleccioId.toString()),
-        ) { it.getString(0) }
-
-    /** Totes les col·leccions amb els ids de les seves cartes (per calcular progrés). */
-    fun membresColeccions(): Map<Long, List<String>> {
-        val mapa = HashMap<Long, MutableList<String>>()
-        consulta("SELECT coleccio_id, carta_id FROM coleccio_carta") {
-            it.getLong(0) to it.getString(1)
-        }.forEach { (col, carta) -> mapa.getOrPut(col) { ArrayList() }.add(carta) }
-        return mapa
-    }
 
     // ---- Configuració -----------------------------------------------------
 

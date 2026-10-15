@@ -46,7 +46,6 @@ fun DetallCarta(cartaId: String, vm: JocViewModel, onTorna: () -> Unit) {
     val marques = remember(cartaId, llengua) { vm.repo.marques(cartaId, llengua) }
     val text = remember(cartaId, llengua) { vm.repo.text(cartaId, llengua) }
     val pais = remember(carta.paisQid, llengua) { vm.repo.etiqueta(carta.paisQid, llengua) }
-    val etiqueta = remember(cartaId, llengua) { vm.repo.etiquetaColleccio(cartaId, llengua) }
     val quantitat = vm.inventari[cartaId] ?: 0
     val uri = LocalUriHandler.current
     var confirma by remember { mutableStateOf(false) }
@@ -93,7 +92,6 @@ fun DetallCarta(cartaId: String, vm: JocViewModel, onTorna: () -> Unit) {
                 modifier = Modifier.width(ample),
                 extracte = cos,
                 pais = pais,
-                etiqueta = etiqueta,
                 credit = credit,
                 onCredit = carta.fotoPagina?.let { pagina -> { uri.openUri(pagina) } },
             )
@@ -102,7 +100,7 @@ fun DetallCarta(cartaId: String, vm: JocViewModel, onTorna: () -> Unit) {
             Button(
                 modifier = Modifier.padding(vertical = 12.dp),
                 onClick = {
-                    if (quantitat > 1 && vm.coleccionsEnCurs(cartaId).isEmpty()) {
+                    if (quantitat > 1) {
                         vm.destrueix(carta, 1)
                     } else {
                         confirma = true
@@ -117,20 +115,12 @@ fun DetallCarta(cartaId: String, vm: JocViewModel, onTorna: () -> Unit) {
     }
 
     if (confirma) {
-        val enCurs = vm.coleccionsEnCurs(cartaId)
-        val noms = enCurs.joinToString(", ") { c ->
-            // Només necessitem el text; es calcula fora del composable amb etiquetes simples.
-            vm.repo.etiqueta(c.clau, llengua) ?: c.clau.orEmpty()
-        }
         AlertDialog(
             onDismissRequest = { confirma = false },
             title = { Text(stringResource(R.string.confirma_titol)) },
             text = {
                 Column {
                     if (quantitat <= 1) Text(stringResource(R.string.confirma_ultima))
-                    if (enCurs.isNotEmpty()) {
-                        Text(stringResource(R.string.confirma_coleccions, noms))
-                    }
                 }
             },
             confirmButton = {

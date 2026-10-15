@@ -171,7 +171,6 @@ private fun ObertureSobre(
     val scope = rememberCoroutineScope()
     val vistes = remember(res) { mutableStateListOf(*Array(total) { false }) }
     val extractes = remember(res, vm.idioma) { res.cartes.map { vm.repo.text(it.id, vm.idioma)?.text } }
-    val etiquetes = remember(res, vm.idioma) { res.cartes.map { vm.repo.etiquetaColleccio(it.id, vm.idioma) } }
     val actual = pager.currentPage
     // Les llegendàries giren més a poc a poc; el confeti surt quan ja s'han revelat.
     var llegendariaRevelada by remember(res) { mutableStateOf(false) }
@@ -208,7 +207,6 @@ private fun ObertureSobre(
                     CartaGirable(
                         carta = res.cartes[i],
                         extracte = extractes[i],
-                        etiqueta = etiquetes[i],
                         nova = res.cartes[i].id in res.noves,
                         girada = vistes[i],
                         modifier = Modifier.width(ample),
@@ -275,7 +273,6 @@ private fun ObertureSobre(
 private fun CartaGirable(
     carta: Carta,
     extracte: String?,
-    etiqueta: String?,
     nova: Boolean,
     girada: Boolean,
     modifier: Modifier = Modifier,
@@ -310,7 +307,7 @@ private fun CartaGirable(
                 Text("?", fontSize = 56.sp, fontWeight = FontWeight.Bold, color = Color.White)
             }
         } else {
-            CartaView(carta, extracte = extracte, etiqueta = etiqueta, nova = nova, onClick = onClick)
+            CartaView(carta, extracte = extracte, nova = nova, onClick = onClick)
         }
     }
 }

@@ -4,7 +4,6 @@
 
     <string name="tab_inici">Inicio</string>
     <string name="tab_album">Álbum</string>
-    <string name="tab_colleccions">Colecciones</string>
     <string name="tab_missions">Misiones</string>
     <string name="tab_taller">Taller</string>
 
@@ -63,19 +62,12 @@
     <string name="destrueix_btn">Destruir una copia (+%1$d monedas)</string>
     <string name="confirma_titol">Destruir carta</string>
     <string name="confirma_ultima">Es la última copia que tienes. Perderás la carta.</string>
-    <string name="confirma_coleccions">Forma parte de colecciones que has empezado: %1$s.</string>
     <string name="confirma_ok">Destruir</string>
     <string name="cancela">Cancelar</string>
 
-    <string name="colleccions_buit">Aún no hay colecciones.</string>
     <string name="progres">%1$d de %2$d</string>
     <string name="reclama">Reclamar %1$d monedas</string>
     <string name="reclamada">Reclamada</string>
-    <string name="col_club">Club: %1$s</string>
-    <string name="col_pais">%1$s: %2$s</string>
-    <string name="col_premi">Premio: %1$s</string>
-    <string name="col_decada">%1$s: nacidos en los años %2$s</string>
-    <string name="col_esport_raresa">%1$s: %2$s</string>
 
     <string name="missio_sobres_avui">Abre %1$d sobres hoy</string>
     <string name="missio_sobres_oberts">Abre %1$d sobres</string>
@@ -83,7 +75,6 @@
     <string name="missio_rara">Consigue %1$d cartas raras o mejores</string>
     <string name="missio_destruir">Destruye %1$d cartas</string>
     <string name="missio_fabricar">Fabrica %1$d cartas</string>
-    <string name="missio_coleccions">Completa %1$d colecciones</string>
     <string name="diaria">Diaria</string>
 
     <string name="taller_destruir">Destruir</string>

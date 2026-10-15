@@ -21,14 +21,6 @@ data class Carta(
     val anyNaixement: String? get() = naixement?.take(4)
 }
 
-data class Coleccio(
-    val id: Long,
-    val tipus: String,
-    val clau: String?,
-    val esport: String?,
-    val mida: Int,
-)
-
 data class TextCarta(val text: String, val url: String?, val llengua: String)
 
 data class PremiCarta(val nom: String, val any: String?)

@@ -17,10 +17,6 @@ object Economia {
 
     /** Monedes que costa fabricar una carta concreta. */
     fun costFabricar(raresa: Int): Int = valorDestruccio(raresa) * 5
-
-    /** Premi d'acabar una col·lecció, segons les rareses de les seves cartes. */
-    fun recompensaColeccio(rareses: List<Int>): Int =
-        rareses.sumOf { valorDestruccio(it) } / 2 + 10
 }
 
 /** Tria de les cartes d'un sobre. */
@@ -107,7 +103,7 @@ object Sobres {
 
 enum class TipusMissio {
     SOBRES_AVUI, SOBRES_OBERTS, CARTES_DIFERENTS, RARA_O_MES, CARTES_DESTRUIDES,
-    CARTES_FABRICADES, COLECCIONS_COMPLETADES,
+    CARTES_FABRICADES,
 }
 
 data class Missio(
@@ -130,7 +126,5 @@ object Missions {
         Missio("rara_5", TipusMissio.RARA_O_MES, 5, 250),
         Missio("destruir_5", TipusMissio.CARTES_DESTRUIDES, 5, 30),
         Missio("fabricar_1", TipusMissio.CARTES_FABRICADES, 1, 40),
-        Missio("coleccio_1", TipusMissio.COLECCIONS_COMPLETADES, 1, 100),
-        Missio("coleccio_5", TipusMissio.COLECCIONS_COMPLETADES, 5, 500),
     )
 }
