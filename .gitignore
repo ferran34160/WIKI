@@ -1,0 +1,7 @@
+# Bases de dades de treball (es poden regenerar); el que usa l'app és joc_cartes.sqlite
+cartes.sqlite
+prova.sqlite
+prova100.sqlite
+prova100b.sqlite
+__pycache__/
+*.pyc
