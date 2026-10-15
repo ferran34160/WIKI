@@ -16,6 +16,17 @@ android {
         versionName = "0.1"
     }
 
+    // Clau de depuració fixa (pública, només per a proves): així cada APK
+    // es pot instal·lar sobre l'anterior sense perdre la partida.
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
