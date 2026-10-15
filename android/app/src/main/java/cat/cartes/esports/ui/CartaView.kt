@@ -168,6 +168,7 @@ fun CartaView(
     quantitat: Int = 0,
     extracte: String? = null,
     pais: String? = null,
+    etiqueta: String? = null,
     credit: String? = null,
     onCredit: (() -> Unit)? = null,
     onClick: (() -> Unit)? = null,
@@ -254,6 +255,20 @@ fun CartaView(
                         }
                     } else {
                         Spacer(Modifier.weight(1f))
+                    }
+                    if (etiqueta != null) {
+                        Text(
+                            etiqueta,
+                            modifier = Modifier
+                                .padding(bottom = (3 * escala).dp)
+                                .background(TintaCarta.copy(alpha = 0.14f), RoundedCornerShape(50))
+                                .padding(horizontal = (8 * escala).dp, vertical = (2 * escala).dp),
+                            fontSize = (10 * escala).sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = TintaCarta,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
                     }
                     Box(
                         Modifier

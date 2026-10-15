@@ -46,6 +46,7 @@ fun DetallCarta(cartaId: String, vm: JocViewModel, onTorna: () -> Unit) {
     val marques = remember(cartaId, llengua) { vm.repo.marques(cartaId, llengua) }
     val text = remember(cartaId, llengua) { vm.repo.text(cartaId, llengua) }
     val pais = remember(carta.paisQid, llengua) { vm.repo.etiqueta(carta.paisQid, llengua) }
+    val etiqueta = remember(cartaId, llengua) { vm.repo.etiquetaColleccio(cartaId, llengua) }
     val quantitat = vm.inventari[cartaId] ?: 0
     val uri = LocalUriHandler.current
     var confirma by remember { mutableStateOf(false) }
@@ -92,6 +93,7 @@ fun DetallCarta(cartaId: String, vm: JocViewModel, onTorna: () -> Unit) {
                 modifier = Modifier.width(ample),
                 extracte = cos,
                 pais = pais,
+                etiqueta = etiqueta,
                 credit = credit,
                 onCredit = carta.fotoPagina?.let { pagina -> { uri.openUri(pagina) } },
             )

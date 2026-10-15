@@ -149,8 +149,28 @@ class CartaRepository(context: Context) {
         ) { Triple(it.text(0), it.getDouble(1), it.text(2)) }
             .mapNotNull { (disc, valor, unitat) ->
                 val nom = etiqueta(disc, llengua)?.takeIf { !esQid(it) } ?: return@mapNotNull null
-                MarcaCarta(nom, valor, etiqueta(unitat, llengua)?.takeIf { !esQid(it) })
+                Triple(MarcaCarta(nom, valor, etiqueta(unitat, llengua)?.takeIf { !esQid(it) }), unitat, nom)
             }
+            // Wikidata porta tot l'historial de marques: a la carta només la millor de cada disciplina
+            // (el temps més baix si la unitat és el segon; si no, el valor més alt).
+            .groupBy { it.third }
+            .map { (_, marques) ->
+                if (marques.first().second == QID_SEGON) marques.minBy { it.first.valor }.first
+                else marques.maxBy { it.first.valor }.first
+            }
+
+    /**
+     * Etiqueta de col·lecció de la carta: el nom del club de la col·lecció (tipus «club»)
+     * més gran que la conté, o null si no en té cap.
+     */
+    fun etiquetaColleccio(cartaId: String, llengua: String): String? {
+        val clau = consulta(
+            "SELECT c.clau FROM coleccions c JOIN coleccio_carta cc ON cc.coleccio_id = c.id " +
+                "WHERE cc.carta_id=? AND c.tipus='club' ORDER BY c.mida DESC, c.id LIMIT 1",
+            arrayOf(cartaId),
+        ) { it.text(0) }.firstOrNull()
+        return etiqueta(clau, llengua)?.takeIf { !esQid(it) }
+    }
 
     // ---- Col·leccions ---------------------------------------------------
 
@@ -189,3 +209,6 @@ class CartaRepository(context: Context) {
                 "visites, raresa, foto_url, foto_autor, foto_llicencia, foto_llicencia_url, foto_pagina"
     }
 }
+
+/** Unitat «segon» a Wikidata: les marques en aquesta unitat són millors com més baixes. */
+private const val QID_SEGON = "Q11574"
