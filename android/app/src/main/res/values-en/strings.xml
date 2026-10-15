@@ -12,6 +12,8 @@
     <string name="perfil_titol">Profile</string>
     <string name="enrere">Back</string>
 
+    <string name="sobre_subtitol">Discover %1$d new cards</string>
+    <string name="obre">Open</string>
     <string name="obre_sobre">Open a pack</string>
     <string name="sobres_guardats">Packs: %1$d of %2$d</string>
     <string name="proper_sobre">Next pack in %1$s</string>

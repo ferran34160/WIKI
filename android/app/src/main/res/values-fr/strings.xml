@@ -12,6 +12,8 @@
     <string name="perfil_titol">Profil</string>
     <string name="enrere">Retour</string>
 
+    <string name="sobre_subtitol">Découvrez %1$d nouvelles cartes</string>
+    <string name="obre">Ouvrir</string>
     <string name="obre_sobre">Ouvrir un paquet</string>
     <string name="sobres_guardats">Paquets : %1$d sur %2$d</string>
     <string name="proper_sobre">Prochain paquet dans %1$s</string>

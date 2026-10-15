@@ -24,11 +24,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -49,6 +51,7 @@ import cat.cartes.esports.game.JocViewModel
 import cat.cartes.esports.game.ResultatSobre
 import cat.cartes.esports.game.Sobres
 import kotlin.math.sin
+import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 @Composable
@@ -66,50 +69,76 @@ fun PantallaInici(vm: JocViewModel, onObreCarta: (String) -> Unit) {
     val segons = (ms / 1000) % 60
     val temps = "%02d:%02d".format(minuts, segons)
 
+    val angle = remember { Animatable(0f) }
+    val scope = rememberCoroutineScope()
+    var obrint by remember { mutableStateOf(false) }
+    val obre = {
+        if (guardats > 0 && !obrint) {
+            obrint = true
+            scope.launch {
+                repeat(3) {
+                    angle.animateTo(7f, tween(60))
+                    angle.animateTo(-7f, tween(60))
+                }
+                angle.animateTo(0f, tween(60))
+                resultat = vm.obreSobre()
+                obrint = false
+            }
+        }
+    }
+
     Column(
         Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Box(
+        Text(
+            stringResource(R.string.obre_sobre),
+            fontSize = 28.sp,
+            fontWeight = FontWeight.ExtraBold,
+            textAlign = TextAlign.Center,
+        )
+        Text(
+            stringResource(R.string.sobre_subtitol, Sobres.CARTES_PER_SOBRE),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(24.dp))
+        SobreView(
             Modifier
-                .fillMaxWidth(0.55f)
-                .aspectRatio(0.68f)
-                .clip(RoundedCornerShape(18.dp))
-                .background(MaterialTheme.colorScheme.secondary)
-                .padding(6.dp)
-                .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(14.dp)),
-            contentAlignment = Alignment.Center,
-        ) {
+                .fillMaxWidth(0.5f)
+                .graphicsLayer { rotationZ = angle.value }
+                .clickable(enabled = guardats > 0, onClick = obre),
+        )
+        Spacer(Modifier.height(24.dp))
+        TextButton(onClick = obre, enabled = guardats > 0 && !obrint) {
             Text(
-                "$guardats",
-                fontSize = 64.sp,
+                if (guardats > 0) stringResource(R.string.obre) else stringResource(R.string.sense_sobres),
+                fontSize = 22.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.Black,
             )
         }
-        Spacer(Modifier.height(20.dp))
-        Text(
-            stringResource(R.string.sobres_guardats, guardats, Sobres.MAX_GUARDATS),
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Medium,
-        )
-        Text(
-            if (guardats >= Sobres.MAX_GUARDATS) {
-                stringResource(R.string.sobres_plens)
-            } else {
-                stringResource(R.string.proper_sobre, temps)
-            },
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Spacer(Modifier.height(20.dp))
-        Button(
-            onClick = { resultat = vm.obreSobre() },
-            enabled = guardats > 0,
+        Spacer(Modifier.height(12.dp))
+        Column(
+            Modifier
+                .clip(RoundedCornerShape(20.dp))
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .padding(horizontal = 32.dp, vertical = 14.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                if (guardats > 0) stringResource(R.string.obre_sobre)
-                else stringResource(R.string.sense_sobres),
+                "$guardats / ${Sobres.MAX_GUARDATS}",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+                if (guardats >= Sobres.MAX_GUARDATS) {
+                    stringResource(R.string.sobres_plens)
+                } else {
+                    stringResource(R.string.proper_sobre, temps)
+                },
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
