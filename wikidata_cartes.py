@@ -94,7 +94,7 @@ def http_json(url, params=None, accept="application/json"):
     """Fa una petició GET i retorna el JSON. Reintenta si cal."""
     if params:
         url = url + "?" + urllib.parse.urlencode(params)
-    for intent in range(6):
+    for intent in range(10):
         time.sleep(PAUSA)
         req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": accept})
         try:
@@ -102,16 +102,17 @@ def http_json(url, params=None, accept="application/json"):
                 return json.load(r)
         except urllib.error.HTTPError as e:
             cos = e.read().decode("utf-8", "replace")
-            if e.code in (429, 503) and intent < 5:
+            if e.code in (429, 503) and intent < 9:
+                # Wikimedia limita de vegades a 1 petició/minut: si no diu quant, esperem 65 s.
                 try:
-                    espera = int(e.headers.get("Retry-After", "30"))
+                    espera = int(e.headers.get("Retry-After", "65"))
                 except (TypeError, ValueError):
-                    espera = 30
-                time.sleep(min(max(espera, 5), 120))
+                    espera = 65
+                time.sleep(min(max(espera, 5), 180))
                 continue
             raise ErrorHTTP(e.code, cos)
         except (OSError, ValueError):
-            if intent < 5:
+            if intent < 9:
                 time.sleep(10 * (intent + 1))
                 continue
             raise
