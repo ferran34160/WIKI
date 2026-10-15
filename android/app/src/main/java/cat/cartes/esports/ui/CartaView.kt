@@ -41,6 +41,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
@@ -65,6 +67,58 @@ private fun fonsRaresa(raresa: Int): Pair<Color, Color> = when (raresa) {
     3 -> Color(0xFFC4E1FB) to Color(0xFF6FB1F0)
     4 -> Color(0xFFDCC5F7) to Color(0xFFA070E0)
     else -> Color(0xFFFFDB8A) to Color(0xFFFF9A3C)
+}
+
+/** Colors de la vora (clar, intens, clar) segons la raresa; les llegendàries porten un degradat daurat. */
+private fun coloresVora(raresa: Int): List<Color> = when (raresa) {
+    1 -> listOf(Color(0xFFE0E0E0), Color(0xFF8E8E93), Color(0xFFE0E0E0))
+    2 -> listOf(Color(0xFFA5F5BF), Color(0xFF2E9E5B), Color(0xFFA5F5BF))
+    3 -> listOf(Color(0xFF9CD0FF), Color(0xFF1E6FCC), Color(0xFF9CD0FF))
+    4 -> listOf(Color(0xFFE9C6FF), Color(0xFF8E3FD0), Color(0xFFE9C6FF))
+    else -> listOf(Color(0xFFFFF1A6), Color(0xFFFFB300), Color(0xFFFF7A00), Color(0xFFFFF1A6))
+}
+
+private fun forcaResplendor(raresa: Int): Float = when (raresa) {
+    1 -> 0f
+    2 -> 0.5f
+    3 -> 0.8f
+    4 -> 1.1f
+    else -> 1.5f
+}
+
+/** Vora amb degradat metàl·lic; a les èpiques i llegendàries el degradat es mou. */
+@Composable
+private fun Modifier.voraRaresa(raresa: Int, forma: Shape): Modifier {
+    val transicio = rememberInfiniteTransition(label = "vora")
+    val t by transicio.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(3200, easing = LinearEasing), RepeatMode.Restart),
+        label = "vora_t",
+    )
+    val x = if (raresa >= 4) t * 1200f else 0f
+    val pinzell = Brush.linearGradient(
+        colors = coloresVora(raresa),
+        start = Offset(x, 0f),
+        end = Offset(x + 600f, 600f),
+        tileMode = TileMode.Mirror,
+    )
+    return this.border(if (raresa >= 4) 3.5.dp else 2.5.dp, pinzell, forma)
+}
+
+/** Halo de color de la raresa al voltant de la carta, fet amb capes translúcides. */
+private fun Modifier.resplendor(color: Color, forca: Float): Modifier = if (forca <= 0f) this else drawBehind {
+    val pas = 2.5.dp.toPx()
+    val radi = 18.dp.toPx()
+    for (i in 7 downTo 1) {
+        val d = i * pas
+        drawRoundRect(
+            color.copy(alpha = 0.07f * forca),
+            topLeft = Offset(-d, -d),
+            size = Size(size.width + 2 * d, size.height + 2 * d),
+            cornerRadius = CornerRadius(radi + d),
+        )
+    }
 }
 
 /** Franja de brillantor que recorre la carta (rares i millors). */
@@ -235,8 +289,9 @@ fun CartaView(
     BoxWithConstraints(
         modifier
             .aspectRatio(0.68f)
+            .resplendor(colorMarc, forcaResplendor(carta.raresa))
             .clip(forma)
-            .border(1.5.dp, colorMarc.copy(alpha = 0.9f), forma)
+            .voraRaresa(carta.raresa, forma)
             .fonsTexturat(dalt, baix, carta.esport)
             .let { if (onClick != null) it.clickable(onClick = onClick) else it }
             .holo(carta.raresa >= 3),

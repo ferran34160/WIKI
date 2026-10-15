@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.Cartes" parent="android:Theme.Material.NoActionBar">
-        <item name="android:windowBackground">#FF14122B</item>
-        <item name="android:statusBarColor">#FF14122B</item>
-        <item name="android:navigationBarColor">#FF14122B</item>
+        <item name="android:windowBackground">#FF06060A</item>
+        <item name="android:statusBarColor">#FF06060A</item>
+        <item name="android:navigationBarColor">#FF06060A</item>
     </style>
 </resources>
