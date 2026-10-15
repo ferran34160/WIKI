@@ -7,39 +7,62 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cat.cartes.esports.data.Carta
 import coil.compose.AsyncImage
+import java.util.Locale
 
 private val FonsCarta = Color(0xFF1E1B3A)
+private val TintaCarta = Color(0xFF14122B)
+
+/** Parell de colors (a dalt, a baix) del fons de la carta segons la raresa. */
+private fun fonsRaresa(raresa: Int): Pair<Color, Color> = when (raresa) {
+    1 -> Color(0xFFE6E8EC) to Color(0xFFB7BDC8)
+    2 -> Color(0xFFCDF2DA) to Color(0xFF7FD6A0)
+    3 -> Color(0xFFC4E1FB) to Color(0xFF6FB1F0)
+    4 -> Color(0xFFDCC5F7) to Color(0xFFA070E0)
+    else -> Color(0xFFFFDB8A) to Color(0xFFFF9A3C)
+}
 
 /** Franja de brillantor que recorre la carta (rares i millors). */
 @Composable
@@ -65,15 +88,75 @@ private fun Modifier.holo(actiu: Boolean): Modifier {
     }
 }
 
-private fun gruixMarc(raresa: Int) = when (raresa) {
-    1 -> 1.5.dp
-    2 -> 2.dp
-    3 -> 3.dp
-    4 -> 4.dp
-    else -> 5.dp
+/** Fons amb degradat vertical i anells translúcids a l'estil de les ones d'una carta tipus holo. */
+private fun Modifier.fonsTexturat(dalt: Color, baix: Color): Modifier = this
+    .background(Brush.verticalGradient(listOf(dalt, baix)))
+    .drawBehind {
+        val traç = Stroke(width = size.width * 0.035f)
+        val centre = Offset(size.width * 0.95f, size.height * 0.85f)
+        for (i in 1..7) {
+            drawCircle(
+                color = Color.White.copy(alpha = 0.16f),
+                radius = size.width * 0.22f * i,
+                center = centre,
+                style = traç,
+            )
+        }
+    }
+
+/** Text d'una o dues línies que redueix la mida fins que cap dins l'espai disponible. */
+@Composable
+private fun TextAjustat(
+    text: String,
+    mida: TextUnit,
+    minim: TextUnit,
+    modifier: Modifier = Modifier,
+    color: Color = TintaCarta,
+    pes: FontWeight = FontWeight.Normal,
+    maxLinies: Int = 1,
+    alineacio: TextAlign = TextAlign.Start,
+) {
+    var actual by remember(text, mida) { mutableStateOf(mida) }
+    Text(
+        text,
+        modifier = modifier,
+        fontSize = actual,
+        fontWeight = pes,
+        color = color,
+        maxLines = maxLinies,
+        overflow = TextOverflow.Ellipsis,
+        textAlign = alineacio,
+        onTextLayout = { r ->
+            if ((r.didOverflowHeight || r.didOverflowWidth) && actual.value > minim.value) {
+                actual = (actual.value * 0.9f).sp
+            }
+        },
+    )
 }
 
-/** Carta d'esportista. [compacta] és la versió de quadrícula (sense dades). */
+/** Etiqueta arrodonida (raresa, any). */
+@Composable
+private fun Etiqueta(text: String, fons: Color, escala: Float, modifier: Modifier = Modifier) {
+    Text(
+        text,
+        modifier = modifier
+            .background(fons, RoundedCornerShape(50))
+            .padding(horizontal = (7 * escala).dp, vertical = (2 * escala).dp),
+        fontSize = (10 * escala).sp,
+        fontWeight = FontWeight.Bold,
+        color = Color.White,
+        maxLines = 1,
+        overflow = TextOverflow.Clip,
+    )
+}
+
+private fun vida(carta: Carta): String? {
+    val n = carta.anyNaixement ?: return null
+    val d = carta.defuncio?.take(4)
+    return if (d != null) "$n–$d" else n
+}
+
+/** Carta d'esportista. [compacta] és la versió de quadrícula (sense peu de dades). */
 @Composable
 fun CartaView(
     carta: Carta,
@@ -82,110 +165,109 @@ fun CartaView(
     quantitat: Int = 0,
     onClick: (() -> Unit)? = null,
 ) {
-    val color = colorRaresa(carta.raresa)
-    val forma = RoundedCornerShape(14.dp)
-    Box(
+    val colorMarc = colorRaresa(carta.raresa)
+    val (dalt, baix) = fonsRaresa(carta.raresa)
+    val forma = RoundedCornerShape(18.dp)
+    BoxWithConstraints(
         modifier
             .aspectRatio(0.68f)
             .clip(forma)
-            .background(color)
-            .padding(gruixMarc(carta.raresa))
+            .border(1.5.dp, colorMarc.copy(alpha = 0.9f), forma)
+            .fonsTexturat(dalt, baix)
             .let { if (onClick != null) it.clickable(onClick = onClick) else it }
             .holo(carta.raresa >= 3),
     ) {
-        Column(
-            Modifier
-                .fillMaxSize()
-                .clip(RoundedCornerShape(10.dp))
-                .background(FonsCarta),
-        ) {
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .background(color.copy(alpha = 0.85f))
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text(
-                    nomRaresa(carta.raresa),
-                    fontSize = if (compacta) 10.sp else 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Black,
-                    maxLines = 1,
-                )
-                Text(
-                    nomEsport(carta.esport),
-                    fontSize = if (compacta) 10.sp else 12.sp,
-                    color = Color.Black,
-                    maxLines = 1,
-                )
-            }
-            Box(
-                Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .background(color.copy(alpha = 0.18f)),
-                contentAlignment = Alignment.Center,
-            ) {
+        // Tot el text s'escala amb l'ample de la carta; així cap a la quadrícula i al detall.
+        val escala = (maxWidth.value / 180f).coerceIn(0.75f, 1.7f)
+        val fonsFoto = lerp(dalt, baix, 0.58f)
+        Column(Modifier.fillMaxSize()) {
+            Box(Modifier.weight(0.58f).fillMaxWidth()) {
                 Icon(
                     Icons.Default.Person,
                     contentDescription = null,
-                    tint = Color.White.copy(alpha = 0.25f),
-                    modifier = Modifier.fillMaxSize(0.6f),
+                    tint = TintaCarta.copy(alpha = 0.18f),
+                    modifier = Modifier.align(Alignment.Center).fillMaxSize(0.55f),
                 )
                 if (carta.fotoUrl != null) {
                     AsyncImage(
                         model = carta.fotoUrl,
                         contentDescription = carta.nom,
                         contentScale = ContentScale.Crop,
+                        alignment = Alignment.TopCenter,
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
-                carta.anyNaixement?.let { any ->
-                    Text(
-                        any,
-                        fontSize = 11.sp,
-                        color = Color.Black,
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(6.dp)
-                            .background(color.copy(alpha = 0.9f), RoundedCornerShape(8.dp))
-                            .padding(horizontal = 6.dp, vertical = 1.dp),
-                    )
-                }
+                // Degradat que fon la foto amb el fons de la carta.
+                Box(
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.38f)
+                        .background(Brush.verticalGradient(listOf(Color.Transparent, fonsFoto))),
+                )
+                Etiqueta(
+                    nomRaresa(carta.raresa),
+                    colorMarc,
+                    escala,
+                    Modifier.align(Alignment.TopStart).padding((8 * escala).dp),
+                )
                 if (quantitat > 1) {
-                    Text(
+                    Etiqueta(
                         "×$quantitat",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White,
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(6.dp)
-                            .background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(8.dp))
-                            .padding(horizontal = 6.dp, vertical = 1.dp),
+                        Color.Black.copy(alpha = 0.65f),
+                        escala,
+                        Modifier.align(Alignment.TopEnd).padding((8 * escala).dp),
                     )
                 }
             }
-            Column(Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 5.dp)) {
-                val senseCognom = carta.cognom == null || carta.nomPila == null
-                if (!senseCognom && !compacta) {
-                    Text(
-                        carta.nomPila.orEmpty(),
-                        fontSize = 11.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                Text(
-                    if (senseCognom) carta.nom else if (compacta) carta.nom else carta.cognom.orEmpty(),
-                    fontSize = if (compacta) 12.sp else 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = Color.White,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+            Column(
+                Modifier
+                    .weight(0.42f)
+                    .fillMaxWidth()
+                    .padding(horizontal = (10 * escala).dp, vertical = (4 * escala).dp),
+            ) {
+                TextAjustat(
+                    carta.nom,
+                    mida = (16 * escala).sp,
+                    minim = (9 * escala).sp,
+                    pes = FontWeight.ExtraBold,
+                    maxLinies = 2,
                 )
+                TextAjustat(
+                    nomEsport(carta.esport),
+                    mida = (11 * escala).sp,
+                    minim = (8 * escala).sp,
+                    color = TintaCarta.copy(alpha = 0.7f),
+                )
+                if (!compacta) {
+                    Spacer(Modifier.weight(1f))
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(TintaCarta.copy(alpha = 0.2f)),
+                    )
+                    Row(
+                        Modifier.fillMaxWidth().padding(vertical = (3 * escala).dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        TextAjustat(
+                            vida(carta).orEmpty(),
+                            mida = (11 * escala).sp,
+                            minim = (8 * escala).sp,
+                            pes = FontWeight.SemiBold,
+                        )
+                        carta.alcadaM?.let {
+                            TextAjustat(
+                                String.format(Locale.getDefault(), "%.2f m", it),
+                                mida = (11 * escala).sp,
+                                minim = (8 * escala).sp,
+                                pes = FontWeight.SemiBold,
+                                alineacio = TextAlign.End,
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -195,26 +277,20 @@ fun CartaView(
 @Composable
 fun CartaSilueta(raresa: Int, modifier: Modifier = Modifier) {
     val color = colorRaresa(raresa)
+    val forma = RoundedCornerShape(18.dp)
     Box(
         modifier
             .aspectRatio(0.68f)
-            .clip(RoundedCornerShape(14.dp))
-            .background(color.copy(alpha = 0.35f))
-            .padding(2.dp),
+            .clip(forma)
+            .border(1.5.dp, color.copy(alpha = 0.4f), forma)
+            .background(FonsCarta),
+        contentAlignment = Alignment.Center,
     ) {
-        Box(
-            Modifier
-                .fillMaxSize()
-                .clip(RoundedCornerShape(12.dp))
-                .background(FonsCarta),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                Icons.Default.Person,
-                contentDescription = null,
-                tint = color.copy(alpha = 0.45f),
-                modifier = Modifier.fillMaxSize(0.55f),
-            )
-        }
+        Icon(
+            Icons.Default.Person,
+            contentDescription = null,
+            tint = color.copy(alpha = 0.45f),
+            modifier = Modifier.fillMaxSize(0.55f),
+        )
     }
 }
