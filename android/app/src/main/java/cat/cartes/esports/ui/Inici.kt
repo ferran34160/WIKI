@@ -271,13 +271,6 @@ private fun ObertureSobre(
         }
         if (llegendariaRevelada) {
             Confeti()
-            Text(
-                stringResource(R.string.legendaria_alerta),
-                modifier = Modifier.align(Alignment.TopCenter).padding(top = 48.dp),
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = colorRaresa(5),
-            )
         }
         if (flaix.value > 0.01f) {
             Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = flaix.value)))
