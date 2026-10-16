@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.ui.platform.LocalContext
@@ -86,6 +88,15 @@ fun DetallCarta(cartaId: String, vm: JocViewModel, onTorna: () -> Unit) {
                 else stringResource(R.string.no_tens),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            Spacer(Modifier.weight(1f))
+            val preferida = cartaId in vm.preferides
+            IconButton(onClick = { vm.canviaPreferida(cartaId) }) {
+                Icon(
+                    Icons.Default.Star,
+                    contentDescription = stringResource(R.string.preferida),
+                    tint = if (preferida) Color(0xFFFF5A8A) else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                )
+            }
         }
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
             val ample = minOf(maxWidth, maxHeight * 0.68f)

@@ -52,16 +52,20 @@ fun PantallaAlbum(vm: JocViewModel, onObreCarta: (String) -> Unit) {
     var seleccionant by remember { mutableStateOf(false) }
     var seleccio by remember { mutableStateOf(setOf<String>()) }
     var confirma by remember { mutableStateOf(false) }
+    var nomesPreferides by remember { mutableStateOf(false) }
 
     val cartes = vm.possedides
         .filter { c ->
             (esport == null || c.esport == esport) &&
                 (raresa == null || c.raresa == raresa) &&
+                (!nomesPreferides || c.id in vm.preferides) &&
                 (text.isBlank() || c.nom.contains(text.trim(), ignoreCase = true))
         }
         .sortedWith(compareByDescending<Carta> { it.raresa }.thenByDescending { it.visites })
 
-    val totesTriades = cartes.isNotEmpty() && cartes.all { it.id in seleccio }
+    // «Selecciona-ho tot» i «Repetides» no marquen mai les preferides (es poden marcar a mà).
+    val seleccionables = cartes.filter { it.id !in vm.preferides }
+    val totesTriades = seleccionables.isNotEmpty() && seleccionables.all { it.id in seleccio }
 
     fun surtDeSeleccio() {
         seleccionant = false
@@ -101,7 +105,7 @@ fun PantallaAlbum(vm: JocViewModel, onObreCarta: (String) -> Unit) {
                         else stringResource(R.string.selecciona_totes),
                         triat = totesTriades,
                         alTocar = {
-                            val mostrades = cartes.map { it.id }.toSet()
+                            val mostrades = seleccionables.map { it.id }.toSet()
                             seleccio = if (totesTriades) seleccio - mostrades else seleccio + mostrades
                         },
                     )
@@ -110,9 +114,18 @@ fun PantallaAlbum(vm: JocViewModel, onObreCarta: (String) -> Unit) {
                     ChipFiltre(
                         stringResource(R.string.selecciona_repetides),
                         triat = false,
-                        alTocar = { seleccio = vm.possedides.filter { vm.repetides(it.id) > 0 }.map { it.id }.toSet() },
+                        alTocar = {
+                            seleccio = vm.possedides
+                                .filter { vm.repetides(it.id) > 0 && it.id !in vm.preferides }
+                                .map { it.id }.toSet()
+                        },
                     )
                 }
+            }
+            item {
+                ChipFiltre(
+                    "★ " + stringResource(R.string.filtre_preferides), nomesPreferides, { nomesPreferides = !nomesPreferides },
+                )
             }
             items((1..5).toList()) { r ->
                 ChipFiltre(
@@ -205,6 +218,14 @@ fun PantallaAlbum(vm: JocViewModel, onObreCarta: (String) -> Unit) {
             text = {
                 Column {
                     Text(stringResource(R.string.confirma_multi, seleccio.size, vm.monedesSeleccio(seleccio)))
+                    val preferidesTriades = seleccio.count { it in vm.preferides }
+                    if (preferidesTriades > 0) {
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            stringResource(R.string.confirma_multi_preferides, preferidesTriades),
+                            color = Color(0xFFE5484D),
+                        )
+                    }
                     if (perdudes > 0) {
                         Spacer(Modifier.height(8.dp))
                         Text(

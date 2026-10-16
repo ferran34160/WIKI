@@ -43,6 +43,9 @@ import java.util.Locale
 /** Estil de carta triat al perfil; el llegeix tota la interfície. */
 val LocalEstilCarta = compositionLocalOf { EstilCarta.CLASSIC }
 
+/** Ids de les cartes preferides, per mostrar-hi l'estrella a qualsevol pantalla. */
+val LocalPreferides = compositionLocalOf { emptySet<String>() }
+
 private fun colorEsport(esport: String?): Color = when (esport) {
     "futbol" -> Color(0xFF22C55E)
     "basquet" -> Color(0xFFFF7A1A)
@@ -117,6 +120,17 @@ fun CartaFoto(
                     if (it) stringResource(R.string.nova) else stringResource(R.string.repetida),
                     if (it) Color(0xFF1FA463) else Color(0xFF6B6890),
                     e,
+                )
+            }
+            if (carta.id in LocalPreferides.current) {
+                Text(
+                    "★",
+                    modifier = Modifier
+                        .background(Color.Black.copy(alpha = 0.55f), RoundedCornerShape(50))
+                        .padding(horizontal = (6 * e).dp, vertical = (1 * e).dp),
+                    fontSize = (13 * e).sp,
+                    color = Color(0xFFFF5A8A),
+                    fontWeight = FontWeight.ExtraBold,
                 )
             }
             if (quantitat > 1) Etiqueta("×$quantitat", Color.Black.copy(alpha = 0.65f), e)

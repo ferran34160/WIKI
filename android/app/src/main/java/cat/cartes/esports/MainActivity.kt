@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.sp
 import cat.cartes.esports.game.JocViewModel
 import cat.cartes.esports.ui.DetallCarta
 import cat.cartes.esports.ui.LocalEstilCarta
+import cat.cartes.esports.ui.LocalPreferides
 import cat.cartes.esports.ui.PantallaAlbum
 import cat.cartes.esports.ui.PantallaInici
 import cat.cartes.esports.ui.PantallaMissions
@@ -88,6 +89,7 @@ class MainActivity : ComponentActivity() {
                     LocalContext provides ctx,
                     LocalConfiguration provides config,
                     LocalEstilCarta provides vm.estilCarta,
+                    LocalPreferides provides vm.preferides,
                 ) {
                     ArrelJoc(vm)
                 }
