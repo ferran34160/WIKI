@@ -42,13 +42,23 @@ private fun detectaCara(foto: Bitmap): Offset? {
     if (w < 16 || h < 16) return null
     val reduida = Bitmap.createScaledBitmap(foto, w, h, true).copy(Bitmap.Config.RGB_565, false) ?: return null
     return try {
-        val trobades = arrayOfNulls<FaceDetector.Face>(1)
-        if (FaceDetector(w, h, 1).findFaces(reduida, trobades) == 0) return null
-        val cara = trobades[0] ?: return null
-        if (cara.confidence() < 0.4f) return null
-        val ulls = PointF().also { cara.getMidPoint(it) }
-        // El centre del cap és una mica per sota de la línia dels ulls.
-        Offset(ulls.x / w, (ulls.y + 0.3f * cara.eyesDistance()) / h)
+        val maxCares = 3
+        val trobades = arrayOfNulls<FaceDetector.Face>(maxCares)
+        val n = FaceDetector(w, h, maxCares).findFaces(reduida, trobades)
+        // El detector del sistema dona falsos positius (logos, dibuixos a la roba...): només s'accepta una
+        // cara amb molta confiança, d'una mida plausible i, en retrats verticals, a la meitat de dalt.
+        val vertical = h > w * 1.1f
+        trobades.take(n).filterNotNull()
+            .filter { it.confidence() >= 0.5f }
+            .filter { it.eyesDistance() / w in 0.04f..0.35f }
+            .mapNotNull { cara ->
+                val ulls = PointF().also { cara.getMidPoint(it) }
+                // El centre del cap és una mica per sota de la línia dels ulls.
+                val centre = Offset(ulls.x / w, (ulls.y + 0.3f * cara.eyesDistance()) / h)
+                if (vertical && centre.y > 0.45f) null else cara.confidence() to centre
+            }
+            .maxByOrNull { it.first }
+            ?.second
     } finally {
         reduida.recycle()
     }
@@ -68,8 +78,9 @@ private fun alineacio(proporcio: Float, focus: Offset?, ample: Float, alt: Float
         val fraccio = ((punt * foto - finestra / 2f) / sobra).coerceIn(0f, 1f)
         return 2f * fraccio - 1f
     }
-    // Sense cara: la majoria de retrats tenen el cap al terç superior.
-    return BiasAlignment(eix(fotoAmple, ample, focus?.x, 0f), eix(fotoAlt, alt, focus?.y, -0.5f))
+    // Sense cara: la majoria de retrats tenen el cap al terç superior, sobretot els verticals.
+    val perDefecte = if (proporcio < 0.9f) -0.75f else -0.5f
+    return BiasAlignment(eix(fotoAmple, ample, focus?.x, 0f), eix(fotoAlt, alt, focus?.y, perDefecte))
 }
 
 /** Foto de la carta: es retalla per omplir l'espai, però centrada en la cara si se'n troba una. */
