@@ -50,25 +50,20 @@ fun DetallCarta(cartaId: String, vm: JocViewModel, onTorna: () -> Unit) {
     val uri = LocalUriHandler.current
     var confirma by remember { mutableStateOf(false) }
 
-    // Premis i rècords (només si n'hi ha) abans del text breu, tot dins la carta.
-    val cos = remember(premis, marques, text, ctx) {
-        buildString {
-            if (premis.isNotEmpty() || marques.isNotEmpty()) {
-                append(ctx.getString(R.string.premis_titol)).append('\n')
-                premis.forEach { p ->
-                    append("• ")
-                    append(if (p.any != null) ctx.getString(R.string.premi_any, p.nom, p.any.take(4)) else p.nom)
-                    append('\n')
-                }
-                marques.forEach { m ->
-                    val valor = "%.2f".format(m.valor).trimEnd('0').trimEnd('.') +
-                        (m.unitat?.let { " $it" } ?: "")
-                    append("• ").append(ctx.getString(R.string.marca_fmt, m.disciplina, valor)).append('\n')
-                }
-                append('\n')
+    // Premis i rècords (només si n'hi ha), abans del text breu, tot dins la carta.
+    val premisText = remember(premis, marques, ctx) {
+        if (premis.isEmpty() && marques.isEmpty()) null else buildString {
+            append(ctx.getString(R.string.premis_titol))
+            premis.forEach { p ->
+                append("\n• ")
+                append(if (p.any != null) ctx.getString(R.string.premi_any, p.nom, p.any.take(4)) else p.nom)
             }
-            text?.let { append(it.text) }
-        }.trim().ifEmpty { null }
+            marques.forEach { m ->
+                val valor = "%.2f".format(m.valor).trimEnd('0').trimEnd('.') +
+                    (m.unitat?.let { " $it" } ?: "")
+                append("\n• ").append(ctx.getString(R.string.marca_fmt, m.disciplina, valor))
+            }
+        }
     }
     val credit = if (carta.fotoAutor != null || carta.fotoLlicencia != null) {
         ctx.getString(R.string.foto_credit, carta.fotoAutor ?: "?", carta.fotoLlicencia ?: "?")
@@ -90,7 +85,8 @@ fun DetallCarta(cartaId: String, vm: JocViewModel, onTorna: () -> Unit) {
             CartaView(
                 carta,
                 modifier = Modifier.width(ample),
-                extracte = cos,
+                extracte = text?.text,
+                premis = premisText,
                 pais = pais,
                 credit = credit,
                 onCredit = carta.fotoPagina?.let { pagina -> { uri.openUri(pagina) } },

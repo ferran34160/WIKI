@@ -50,6 +50,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -210,35 +214,64 @@ private fun Modifier.fonsTexturat(dalt: Color, baix: Color, esport: String?): Mo
     .background(Brush.verticalGradient(listOf(dalt, baix)))
     .drawBehind { motiuEsport(esport) }
 
-/** Text d'una o dues línies que redueix la mida fins que cap dins l'espai disponible. */
+/** Text de mida fixa (la mateixa a totes les cartes); si no hi cap, es talla amb punts suspensius. */
 @Composable
-private fun TextAjustat(
+private fun TextFix(
     text: String,
     mida: TextUnit,
-    minim: TextUnit,
     modifier: Modifier = Modifier,
     color: Color = TintaCarta,
     pes: FontWeight = FontWeight.Normal,
     maxLinies: Int = 1,
     alineacio: TextAlign = TextAlign.Start,
 ) {
-    var actual by remember(text, mida) { mutableStateOf(mida) }
     Text(
         text,
         modifier = modifier,
-        fontSize = actual,
-        lineHeight = (actual.value * 1.2f).sp,
+        fontSize = mida,
+        lineHeight = (mida.value * 1.2f).sp,
         fontWeight = pes,
         color = color,
         maxLines = maxLinies,
         overflow = TextOverflow.Ellipsis,
         textAlign = alineacio,
-        onTextLayout = { r ->
-            if ((r.didOverflowHeight || r.didOverflowWidth) && actual.value > minim.value) {
-                actual = (actual.value * 0.9f).sp
-            }
-        },
     )
+}
+
+private val SEPARADOR_FRASES = Regex("(?<=[.!?])(?<!\\b\\p{Lu}[.])\\s+(?=[\\p{Lu}«\"'¿¡(])")
+
+/**
+ * Text de la carta amb la mateixa mida de lletra a totes: mostra [prefix] (premis) i, a continuació, tantes
+ * frases senceres de [text] com càpiguen a l'espai disponible. Així mai es talla una frase a mitges.
+ */
+@Composable
+private fun TextEnCaixa(prefix: String?, text: String, mida: TextUnit, color: Color, modifier: Modifier = Modifier) {
+    val mesurador = rememberTextMeasurer()
+    val estil = remember(mida, color) {
+        TextStyle(fontSize = mida, lineHeight = (mida.value * 1.2f).sp, color = color)
+    }
+    BoxWithConstraints(modifier) {
+        val ample = constraints.maxWidth
+        val alt = constraints.maxHeight
+        val visible = remember(prefix, text, estil, ample, alt) {
+            fun cap(candidat: String) = mesurador.measure(
+                AnnotatedString(candidat), estil, constraints = Constraints(maxWidth = ample),
+            ).size.height <= alt
+            val base = if (prefix.isNullOrBlank()) "" else prefix.trimEnd() + "\n\n"
+            val frases = text.trim().split(SEPARADOR_FRASES)
+            var millor = ""
+            for (k in 1..frases.size) {
+                val candidat = base + frases.take(k).joinToString(" ")
+                if (cap(candidat)) millor = candidat else break
+            }
+            millor.ifEmpty { base + frases.first() }
+        }
+        val liniesMax = remember(estil, alt) {
+            val alcada = mesurador.measure(AnnotatedString("A"), estil).size.height.coerceAtLeast(1)
+            (alt / alcada).coerceAtLeast(1)
+        }
+        Text(visible, style = estil, maxLines = liniesMax, overflow = TextOverflow.Ellipsis)
+    }
 }
 
 /** Etiqueta arrodonida (raresa, any). */
@@ -265,7 +298,8 @@ private fun vida(carta: Carta): String? {
 
 /**
  * Carta d'esportista. [compacta] és la versió de quadrícula (sense peu de dades).
- * Si hi ha [extracte], es mostra dins la carta amb la mida de lletra ajustada perquè hi càpiga.
+ * Si hi ha [extracte] (i [premis]), es mostren dins la carta amb una mida de lletra fixa: només s'hi posen
+ * les frases senceres que hi caben.
  */
 @Composable
 fun CartaView(
@@ -274,6 +308,7 @@ fun CartaView(
     compacta: Boolean = false,
     quantitat: Int = 0,
     extracte: String? = null,
+    premis: String? = null,
     pais: String? = null,
     nova: Boolean? = null,
     credit: String? = null,
@@ -283,6 +318,7 @@ fun CartaView(
     val colorMarc = colorRaresa(carta.raresa)
     val (dalt, baix) = fonsRaresa(carta.raresa)
     val forma = RoundedCornerShape(18.dp)
+    val ambText = extracte != null || premis != null
     val bandera = remember(carta.paisQid) { banderaPais(carta.paisQid) }
     val esport = nomEsport(carta.esport)
     val etiquetaEsport = listOfNotNull(esport.takeIf { it.isNotBlank() }, pais?.takeIf { it.isNotBlank() })
@@ -300,7 +336,7 @@ fun CartaView(
         // Tot el text s'escala amb l'ample de la carta; així cap a la quadrícula i al detall.
         val escala = (maxWidth.value / 180f).coerceIn(0.75f, 1.7f)
         Column(Modifier.fillMaxSize()) {
-            Box(Modifier.weight(if (extracte != null) 0.42f else 0.58f).fillMaxWidth()) {
+            Box(Modifier.weight(if (ambText) 0.42f else 0.58f).fillMaxWidth()) {
                 Icon(
                     Icons.Default.Person,
                     contentDescription = null,
@@ -346,35 +382,30 @@ fun CartaView(
             }
             Column(
                 Modifier
-                    .weight(if (extracte != null) 0.58f else 0.42f)
+                    .weight(if (ambText) 0.58f else 0.42f)
                     .fillMaxWidth()
                     .padding(horizontal = (10 * escala).dp, vertical = (4 * escala).dp),
             ) {
-                TextAjustat(
+                TextFix(
                     carta.nom,
-                    mida = ((if (extracte != null) 13 else 16) * escala).sp,
-                    minim = (9 * escala).sp,
+                    mida = ((if (ambText) 12 else 16) * escala).sp,
                     pes = FontWeight.ExtraBold,
                     maxLinies = 2,
                 )
-                TextAjustat(
+                TextFix(
                     etiquetaEsport,
-                    mida = (11 * escala).sp,
-                    minim = (8 * escala).sp,
+                    mida = ((if (ambText) 9 else 11) * escala).sp,
                     color = TintaCarta.copy(alpha = 0.7f),
                 )
                 if (!compacta) {
-                    if (extracte != null) {
-                        Box(Modifier.weight(1f).fillMaxWidth().padding(vertical = (4 * escala).dp)) {
-                            TextAjustat(
-                                extracte,
-                                mida = (13 * escala).sp,
-                                minim = 7.sp,
-                                modifier = Modifier.fillMaxSize(),
-                                color = TintaCarta.copy(alpha = 0.85f),
-                                maxLinies = Int.MAX_VALUE,
-                            )
-                        }
+                    if (ambText) {
+                        TextEnCaixa(
+                            premis,
+                            extracte.orEmpty(),
+                            mida = (6.4f * escala).sp,
+                            color = TintaCarta.copy(alpha = 0.85f),
+                            modifier = Modifier.weight(1f).fillMaxWidth().padding(vertical = (4 * escala).dp),
+                        )
                     } else {
                         Spacer(Modifier.weight(1f))
                     }
@@ -388,27 +419,24 @@ fun CartaView(
                         Modifier.fillMaxWidth().padding(vertical = (3 * escala).dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        TextAjustat(
+                        TextFix(
                             vida(carta).orEmpty(),
-                            mida = (11 * escala).sp,
-                            minim = (8 * escala).sp,
+                            mida = ((if (ambText) 9 else 11) * escala).sp,
                             pes = FontWeight.SemiBold,
                         )
                         carta.alcadaM?.let {
-                            TextAjustat(
+                            TextFix(
                                 String.format(Locale.getDefault(), "%.2f m", it),
-                                mida = (11 * escala).sp,
-                                minim = (8 * escala).sp,
+                                mida = ((if (ambText) 9 else 11) * escala).sp,
                                 pes = FontWeight.SemiBold,
                                 alineacio = TextAlign.End,
                             )
                         }
                     }
                     if (credit != null) {
-                        TextAjustat(
+                        TextFix(
                             credit,
-                            mida = (8 * escala).sp,
-                            minim = 5.5.sp,
+                            mida = (6.5f * escala).sp,
                             modifier = if (onCredit != null) Modifier.clickable(onClick = onCredit) else Modifier,
                             color = TintaCarta.copy(alpha = 0.55f),
                         )
