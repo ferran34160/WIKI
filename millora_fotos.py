@@ -10,7 +10,6 @@ Millora les fotos de les cartes d'una base de dades de wikidata_cartes.py:
 import argparse
 import sqlite3
 import sys
-import urllib.parse
 
 import wikidata_cartes as w
 
@@ -79,15 +78,15 @@ def main():
     print("== fotos petites (< %d px): %d" % (args.min, len(febles)), flush=True)
     if not febles:
         return
-    valors = " ".join("wd:%s" % q for q, _, _ in febles)
-    dades = w.http_json(w.WDQS, {
-        "query": "SELECT ?s ?img WHERE { VALUES ?s { %s } ?s wdt:P18 ?img }" % valors, "format": "json"},
-        accept="application/sparql-results+json")
+    # Totes les fotos (P18) de cada persona, de qualsevol rang, llegides de la fitxa JSON de Wikidata.
     candidats = {}
-    for b in dades["results"]["bindings"]:
-        q = b["s"]["value"].rsplit("/", 1)[-1]
-        nom_fitxer = urllib.parse.unquote(b["img"]["value"].rsplit("/", 1)[-1]).replace("_", " ")
-        candidats.setdefault(q, []).append(nom_fitxer)
+    for q, _, _ in febles:
+        fitxa = w.http_json("https://www.wikidata.org/wiki/Special:EntityData/%s.json" % q)
+        reclams = (((fitxa.get("entities") or {}).get(q) or {}).get("claims") or {}).get("P18", [])
+        for rec in reclams:
+            valor = ((rec.get("mainsnak") or {}).get("datavalue") or {}).get("value")
+            if isinstance(valor, str):
+                candidats.setdefault(q, []).append(valor.replace("_", " "))
     print("   candidates trobades per %d persones" % len(candidats), flush=True)
     noves = info_fitxers([f for fs in candidats.values() for f in fs], args.ample)
 
