@@ -25,6 +25,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.rotate
@@ -80,7 +82,7 @@ private fun DrawScope.miniCarta(cx: Float, cy: Float, angle: Float, dalt: Color,
  * un ventall de cartes i un emblema. Fa un halo que pulsa al voltant.
  */
 @Composable
-fun SobreView(modifier: Modifier = Modifier) {
+fun SobreView(modifier: Modifier = Modifier, obertura: Float = 0f) {
     val transicio = rememberInfiniteTransition(label = "sobre")
     val halo by transicio.animateFloat(
         initialValue = 0.22f,
@@ -97,7 +99,7 @@ fun SobreView(modifier: Modifier = Modifier) {
 
             drawCircle(
                 Brush.radialGradient(
-                    listOf(Color(0xFFFFB300).copy(alpha = halo), Color.Transparent),
+                    listOf(Color(0xFFFFB300).copy(alpha = (halo * (1f + obertura)).coerceAtMost(1f)), Color.Transparent),
                     center = center,
                     radius = w * 0.95f,
                 ),
@@ -121,84 +123,123 @@ fun SobreView(modifier: Modifier = Modifier) {
                 }
                 close()
             }
-            drawPath(
-                forma,
-                Brush.linearGradient(
-                    0f to Color(0xFF2A1166), 0.45f to Color(0xFF6A35E8), 1f to Color(0xFF170845),
-                    start = Offset.Zero, end = Offset(w, h),
-                ),
-            )
-
-            clipPath(forma) {
-                // Raigs daurats des del centre.
-                val c0 = Offset(w / 2, h * 0.5f)
-                for (i in 0 until 18) {
-                    val a0 = (i * 20) * PI / 180
-                    val a1 = a0 + 10 * PI / 180
-                    val raigs = Path().apply {
-                        moveTo(c0.x, c0.y)
-                        lineTo(c0.x + h * cos(a0).toFloat(), c0.y + h * sin(a0).toFloat())
-                        lineTo(c0.x + h * cos(a1).toFloat(), c0.y + h * sin(a1).toFloat())
-                        close()
-                    }
-                    drawPath(raigs, Or.copy(alpha = 0.07f))
-                }
-                // Reflex hologràfic i brillantor del paper.
-                drawRect(
+            val paquet: DrawScope.() -> Unit = {
+                drawPath(
+                    forma,
                     Brush.linearGradient(
-                        0f to Color(0xFFFF6AD5).copy(alpha = 0f),
-                        0.3f to Color(0xFF6AFFD8).copy(alpha = 0.18f),
-                        0.6f to Color(0xFFFFE26A).copy(alpha = 0.18f),
-                        1f to Color(0xFF8A6AFF).copy(alpha = 0f),
+                        0f to Color(0xFF2A1166), 0.45f to Color(0xFF6A35E8), 1f to Color(0xFF170845),
                         start = Offset.Zero, end = Offset(w, h),
                     ),
                 )
-                drawRect(
-                    Brush.linearGradient(
-                        listOf(Color.Transparent, Color.White.copy(alpha = 0.32f), Color.Transparent),
-                        start = Offset(0f, h * 0.2f), end = Offset(w, h * 0.6f),
-                    ),
-                )
-                // Ratllat de segellat a dalt i a baix.
-                val banda = h * 0.07f
-                for (y0 in listOf(0f, h - banda)) {
-                    var x = 0f
-                    var i = 0
-                    while (x < w) {
-                        drawLine(
-                            Color.White.copy(alpha = if (i % 2 == 1) 0.16f else 0.03f),
-                            Offset(x, y0), Offset(x, y0 + banda), strokeWidth = 2 * s,
-                        )
-                        x += 4 * s
-                        i++
+
+                clipPath(forma) {
+                    // Raigs daurats des del centre.
+                    val c0 = Offset(w / 2, h * 0.5f)
+                    for (i in 0 until 18) {
+                        val a0 = (i * 20) * PI / 180
+                        val a1 = a0 + 10 * PI / 180
+                        val raigs = Path().apply {
+                            moveTo(c0.x, c0.y)
+                            lineTo(c0.x + h * cos(a0).toFloat(), c0.y + h * sin(a0).toFloat())
+                            lineTo(c0.x + h * cos(a1).toFloat(), c0.y + h * sin(a1).toFloat())
+                            close()
+                        }
+                        drawPath(raigs, Or.copy(alpha = 0.07f))
                     }
+                    // Reflex hologràfic i brillantor del paper.
+                    drawRect(
+                        Brush.linearGradient(
+                            0f to Color(0xFFFF6AD5).copy(alpha = 0f),
+                            0.3f to Color(0xFF6AFFD8).copy(alpha = 0.18f),
+                            0.6f to Color(0xFFFFE26A).copy(alpha = 0.18f),
+                            1f to Color(0xFF8A6AFF).copy(alpha = 0f),
+                            start = Offset.Zero, end = Offset(w, h),
+                        ),
+                    )
+                    drawRect(
+                        Brush.linearGradient(
+                            listOf(Color.Transparent, Color.White.copy(alpha = 0.32f), Color.Transparent),
+                            start = Offset(0f, h * 0.2f), end = Offset(w, h * 0.6f),
+                        ),
+                    )
+                    // Ratllat de segellat a dalt i a baix.
+                    val banda = h * 0.07f
+                    for (y0 in listOf(0f, h - banda)) {
+                        var x = 0f
+                        var i = 0
+                        while (x < w) {
+                            drawLine(
+                                Color.White.copy(alpha = if (i % 2 == 1) 0.16f else 0.03f),
+                                Offset(x, y0), Offset(x, y0 + banda), strokeWidth = 2 * s,
+                            )
+                            x += 4 * s
+                            i++
+                        }
+                    }
+                    // Marc daurat.
+                    drawRoundRect(
+                        Or.copy(alpha = 0.55f), Offset(16 * s, h * 0.09f), Size(w - 32 * s, h * 0.82f),
+                        CornerRadius(14 * s), style = Stroke(1.5f * s),
+                    )
+                    // Ventall de cartes.
+                    miniCarta(w / 2 - 58 * s, h * 0.33f, -16f, Color(0xFF9CD0FF), Color(0xFF1E6FCC), s)
+                    miniCarta(w / 2 + 58 * s, h * 0.33f, 16f, Color(0xFFFFF1A6), Color(0xFFFF9A3C), s)
+                    miniCarta(w / 2, h * 0.31f, 0f, Color(0xFFE9C6FF), Color(0xFF8E3FD0), s)
+                    // Emblema.
+                    val e = Offset(w / 2, h * 0.62f)
+                    drawCircle(Color.Black.copy(alpha = 0.3f), 48 * s, e)
+                    drawCircle(
+                        Brush.radialGradient(
+                            0f to Color(0xFFFFF0A8), 0.6f to Color(0xFFFFB300), 1f to Color(0xFFC97800),
+                            center = e + Offset(-8.8f * s, -13.2f * s), radius = 70.4f * s,
+                        ),
+                        44 * s, e,
+                    )
+                    drawCircle(Color(0xFFFFF6C8), 44 * s, e, style = Stroke(2.5f * s))
+                    drawCircle(Color(0xFF7A4A00).copy(alpha = 0.45f), 35 * s, e, style = Stroke(2 * s))
+                    drawPath(estrella(e, 29 * s), Color(0xFF3A1B8F))
                 }
-                // Marc daurat.
-                drawRoundRect(
-                    Or.copy(alpha = 0.55f), Offset(16 * s, h * 0.09f), Size(w - 32 * s, h * 0.82f),
-                    CornerRadius(14 * s), style = Stroke(1.5f * s),
-                )
-                // Ventall de cartes.
-                miniCarta(w / 2 - 58 * s, h * 0.33f, -16f, Color(0xFF9CD0FF), Color(0xFF1E6FCC), s)
-                miniCarta(w / 2 + 58 * s, h * 0.33f, 16f, Color(0xFFFFF1A6), Color(0xFFFF9A3C), s)
-                miniCarta(w / 2, h * 0.31f, 0f, Color(0xFFE9C6FF), Color(0xFF8E3FD0), s)
-                // Emblema.
-                val e = Offset(w / 2, h * 0.62f)
-                drawCircle(Color.Black.copy(alpha = 0.3f), 48 * s, e)
+            }
+            if (obertura <= 0f) {
+                paquet()
+            } else {
+                // El paper es trenca per dalt: la tira surt volant, el cos es queda i d'allà surt la llum.
+                val p = obertura
+                val ruptura = h * 0.12f
+                val amp = h * 0.014f
+                val punts = (0..16).map { i -> Offset(w * i / 16f, ruptura + if (i % 2 == 0) 0f else amp) }
+                val cos = Path().apply {
+                    moveTo(0f, h); lineTo(punts.first().x, punts.first().y)
+                    punts.forEach { lineTo(it.x, it.y) }
+                    lineTo(w, h); close()
+                }
+                val tira = Path().apply {
+                    moveTo(0f, 0f); lineTo(w, 0f)
+                    punts.asReversed().forEach { lineTo(it.x, it.y) }
+                    close()
+                }
+                clipPath(cos) { paquet() }
+                withTransform({
+                    translate(left = p * w * 0.45f, top = -p * h * 0.55f)
+                    rotate(p * 40f, pivot = Offset(w, ruptura))
+                }) { clipPath(tira) { paquet() } }
+                val llum = (p * 1.4f).coerceAtMost(1f)
+                val radi = w * (0.15f + p * 1.2f)
+                val boca = Offset(w / 2f, ruptura)
                 drawCircle(
                     Brush.radialGradient(
-                        0f to Color(0xFFFFF0A8), 0.6f to Color(0xFFFFB300), 1f to Color(0xFFC97800),
-                        center = e + Offset(-8.8f * s, -13.2f * s), radius = 70.4f * s,
+                        listOf(Color.White.copy(alpha = llum), Color(0xFFFFD54A).copy(alpha = llum * 0.55f), Color.Transparent),
+                        center = boca, radius = radi,
                     ),
-                    44 * s, e,
+                    radius = radi, center = boca,
                 )
-                drawCircle(Color(0xFFFFF6C8), 44 * s, e, style = Stroke(2.5f * s))
-                drawCircle(Color(0xFF7A4A00).copy(alpha = 0.45f), 35 * s, e, style = Stroke(2 * s))
-                drawPath(estrella(e, 29 * s), Color(0xFF3A1B8F))
             }
         }
         Column(
-            Modifier.align(Alignment.BottomCenter).padding(bottom = maxHeight * 0.115f),
+            Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = maxHeight * 0.115f)
+                .graphicsLayer { alpha = (1f - obertura * 3f).coerceIn(0f, 1f) },
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(

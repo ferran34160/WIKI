@@ -2,6 +2,7 @@ package cat.cartes.esports.ui
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -87,20 +88,21 @@ fun PantallaInici(vm: JocViewModel, onObreCarta: (String) -> Unit) {
     val segons = (ms / 1000) % 60
     val temps = "%02d:%02d".format(minuts, segons)
 
-    val angle = remember { Animatable(0f) }
+    val progres = remember { Animatable(0f) }
+    val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
     var obrint by remember { mutableStateOf(false) }
     val obre = {
         if (guardats > 0 && !obrint) {
             obrint = true
             scope.launch {
-                repeat(3) {
-                    angle.animateTo(7f, tween(60))
-                    angle.animateTo(-7f, tween(60))
-                }
-                angle.animateTo(0f, tween(60))
-                resultat = vm.obreSobre()
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                progres.animateTo(1f, tween(1000, easing = FastOutSlowInEasing))
+                val obert = vm.obreSobre()
+                resultat = obert
                 obrint = false
+                // Si per algun motiu no s'ha pogut obrir, el sobre torna a la normalitat.
+                if (obert == null) progres.snapTo(0f)
             }
         }
     }
@@ -127,9 +129,17 @@ fun PantallaInici(vm: JocViewModel, onObreCarta: (String) -> Unit) {
         val opacitat by animateFloatAsState(if (senseSobres) 0.4f else 1f, tween(500), label = "sobre_alfa")
         val difuminat by animateDpAsState(if (senseSobres) 6.dp else 0.dp, tween(500), label = "sobre_blur")
         SobreView(
+            obertura = progres.value,
+            modifier =
             Modifier
                 .fillMaxWidth(0.6f)
-                .graphicsLayer { rotationZ = angle.value }
+                .graphicsLayer {
+                    // Abans de trencar-se, el sobre tremola una mica i creix.
+                    val p = progres.value
+                    scaleX = 1f + 0.10f * p
+                    scaleY = 1f + 0.10f * p
+                    rotationZ = sin(p * 45f) * 2.5f * (1f - p)
+                }
                 .blur(difuminat, BlurredEdgeTreatment.Unbounded)
                 .alpha(opacitat)
                 .clickable(enabled = guardats > 0, onClick = obre),
