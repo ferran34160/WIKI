@@ -79,6 +79,8 @@ def main():
     ap = argparse.ArgumentParser(description="Exporta la base de dades per a l'app.")
     ap.add_argument("--origen", default="prova100b.sqlite")
     ap.add_argument("--sortida", default="joc_cartes.sqlite")
+    ap.add_argument("--foto-min", type=int, default=0,
+                    help="descarta les cartes amb una foto més petita que això (costat curt, en píxels)")
     args = ap.parse_args()
 
     if not os.path.exists(args.origen):
@@ -91,9 +93,14 @@ def main():
     out.executescript(SCHEMA)
 
     # --- cartes: només les que tenen foto, nom, naixement i alguna visita
+    filtre_foto = ""
+    if args.foto_min and "foto_ample" in {r[1] for r in src.execute("PRAGMA table_info(jugadors)")}:
+        # Només es descarten les fotos amb mida coneguda i petita; les que no en tenen es conserven.
+        filtre_foto = ("AND (j.foto_ample IS NULL OR j.foto_alt IS NULL "
+                       "OR MIN(j.foto_ample, j.foto_alt) >= %d) " % args.foto_min)
     files = src.execute(
         "SELECT j.qid, j.visites, j.llengues FROM jugadors j "
-        "WHERE j.valid=1 AND j.foto_estat='ok' AND j.naixement IS NOT NULL "
+        "WHERE j.valid=1 AND j.foto_estat='ok' AND j.naixement IS NOT NULL " + filtre_foto +
         "AND j.nom NOT GLOB 'Q[0-9]*' AND j.qid IN (SELECT qid FROM ids)").fetchall()
     if not files:
         sys.exit("No hi ha cap carta completa a l'origen.")

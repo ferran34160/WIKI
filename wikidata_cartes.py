@@ -194,6 +194,7 @@ NOVES_COLUMNES = {
     "nom_pila_qid": "TEXT", "cognom_qid": "TEXT", "defuncio": "TEXT",
     "extracte": "TEXT", "extracte_llengua": "TEXT", "extracte_url": "TEXT",
     "visites": "INTEGER", "detall_v": "INTEGER",
+    "foto_ample": "INTEGER", "foto_alt": "INTEGER",
 }
 
 
@@ -501,7 +502,7 @@ def fase_fotos(con):
         lot = pend[i:i + 50]
         titols = {"File:" + f.replace("_", " "): q for q, f in lot}
         dades = api(COMMONS_API, {
-            "action": "query", "prop": "imageinfo", "iiprop": "url|extmetadata",
+            "action": "query", "prop": "imageinfo", "iiprop": "url|size|extmetadata",
             "iiurlwidth": 500, "redirects": 1, "formatversion": 2,
             "titles": "|".join(titols)})
         consulta = dades.get("query") or {}
@@ -523,10 +524,11 @@ def fase_fotos(con):
 
             con.execute(
                 "UPDATE jugadors SET foto_estat='ok', foto_url=?, foto_original=?, foto_pagina=?, "
-                "foto_autor=?, foto_llicencia=?, foto_llicencia_url=? WHERE qid=?",
+                "foto_autor=?, foto_llicencia=?, foto_llicencia_url=?, foto_ample=?, foto_alt=? WHERE qid=?",
                 (info.get("thumburl") or info.get("url"), info.get("url"),
                  info.get("descriptionurl"), neteja(meta("Artist")),
-                 neteja(meta("LicenseShortName")), meta("LicenseUrl"), qid))
+                 neteja(meta("LicenseShortName")), meta("LicenseUrl"),
+                 info.get("width"), info.get("height"), qid))
         con.commit()
         if (i // 50) % 10 == 0:
             print("   %d/%d" % (min(i + 50, len(pend)), len(pend)))
