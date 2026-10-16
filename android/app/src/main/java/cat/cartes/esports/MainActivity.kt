@@ -6,7 +6,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -91,6 +94,17 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
+
+/** Capa opaca que tapa la pantalla de sota i en bloqueja els tocs. */
+@Composable
+private fun CapaSobre(contingut: @Composable () -> Unit) {
+    Box(
+        Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            .pointerInput(Unit) { detectTapGestures { } },
+    ) { contingut() }
 }
 
 private data class Pestanya(val titol: Int, val icona: ImageVector)
@@ -181,17 +195,21 @@ private fun ArrelJoc(vm: JocViewModel) {
             }
         },
     ) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding)) {
-            val carta = cartaOberta
-            when {
-                carta != null -> DetallCarta(carta, vm, onTorna = { cartaOberta = null })
-                perfilObert -> PantallaPerfil(vm)
-                pestanya == 0 -> PantallaInici(vm, onObreCarta = { cartaOberta = it })
-                pestanya == 1 -> PantallaAlbum(vm, onObreCarta = { cartaOberta = it })
-                pestanya == 2 -> PantallaTotes(vm, onObreCarta = { cartaOberta = it })
-                pestanya == 3 -> PantallaMissions(vm)
-                else -> PantallaTaller(vm)
+        // La pantalla de la pestanya es manté sempre; el perfil i la fitxa d'una carta es mostren a sobre.
+        // Així, en tornar enrere, tot queda exactament com estava (el sobre que s'obria, els filtres, la selecció...).
+        Box(Modifier.fillMaxSize().padding(padding)) {
+            Column(Modifier.fillMaxSize()) {
+                when (pestanya) {
+                    0 -> PantallaInici(vm, onObreCarta = { cartaOberta = it })
+                    1 -> PantallaAlbum(vm, onObreCarta = { cartaOberta = it })
+                    2 -> PantallaTotes(vm, onObreCarta = { cartaOberta = it })
+                    3 -> PantallaMissions(vm)
+                    else -> PantallaTaller(vm)
+                }
             }
+            if (perfilObert) CapaSobre { PantallaPerfil(vm) }
+            val carta = cartaOberta
+            if (carta != null) CapaSobre { DetallCarta(carta, vm, onTorna = { cartaOberta = null }) }
         }
     }
 }
