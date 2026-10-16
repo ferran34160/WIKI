@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cat.cartes.esports.R
+import cat.cartes.esports.data.EstilCarta
 import cat.cartes.esports.game.JocViewModel
 
 private val IDIOMES = listOf(
@@ -43,6 +44,22 @@ fun PantallaPerfil(vm: JocViewModel) {
                     label = { Text(nom) },
                 )
             }
+        }
+        Spacer(Modifier.height(24.dp))
+
+        Text(stringResource(R.string.estil_carta), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(8.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FilterChip(
+                selected = vm.estilCarta == EstilCarta.CLASSIC,
+                onClick = { vm.canviaEstilCarta(EstilCarta.CLASSIC) },
+                label = { Text(stringResource(R.string.estil_classic)) },
+            )
+            FilterChip(
+                selected = vm.estilCarta == EstilCarta.FOTO,
+                onClick = { vm.canviaEstilCarta(EstilCarta.FOTO) },
+                label = { Text(stringResource(R.string.estil_foto)) },
+            )
         }
         Spacer(Modifier.height(24.dp))
 

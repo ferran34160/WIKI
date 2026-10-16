@@ -24,6 +24,12 @@
     <string name="torna">Torna</string>
     <string name="sobre_nom">Sobre</string>
     <string name="sobre_cartes_n">%1$d cartes</string>
+    <string name="estil_carta">Estil de les cartes</string>
+    <string name="estil_classic">Clàssic</string>
+    <string name="estil_foto">Foto</string>
+    <string name="etiqueta_naix">Naix.</string>
+    <string name="etiqueta_alcada">Alç.</string>
+    <string name="gira_carta">Toca la carta per girar-la</string>
     <string name="obre_sobre">Obre un sobre</string>
     <string name="sobres_guardats">Sobres: %1$d de %2$d</string>
     <string name="proper_sobre">Proper sobre en %1$s</string>

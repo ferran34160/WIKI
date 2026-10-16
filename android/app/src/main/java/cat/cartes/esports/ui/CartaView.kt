@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cat.cartes.esports.R
 import cat.cartes.esports.data.Carta
+import cat.cartes.esports.data.EstilCarta
 import cat.cartes.esports.data.banderaPais
 import java.util.Locale
 
@@ -83,7 +84,7 @@ private fun coloresVora(raresa: Int): List<Color> = when (raresa) {
     else -> listOf(Color(0xFFFFF1A6), Color(0xFFFFB300), Color(0xFFFF7A00), Color(0xFFFFF1A6))
 }
 
-private fun forcaResplendor(raresa: Int): Float = when (raresa) {
+internal fun forcaResplendor(raresa: Int): Float = when (raresa) {
     1 -> 0f
     2 -> 0.5f
     3 -> 0.8f
@@ -93,7 +94,7 @@ private fun forcaResplendor(raresa: Int): Float = when (raresa) {
 
 /** Vora amb degradat metàl·lic; a les èpiques i llegendàries el degradat es mou. */
 @Composable
-private fun Modifier.voraRaresa(raresa: Int, forma: Shape): Modifier {
+internal fun Modifier.voraRaresa(raresa: Int, forma: Shape): Modifier {
     val transicio = rememberInfiniteTransition(label = "vora")
     val t by transicio.animateFloat(
         initialValue = 0f,
@@ -112,7 +113,7 @@ private fun Modifier.voraRaresa(raresa: Int, forma: Shape): Modifier {
 }
 
 /** Halo de color de la raresa al voltant de la carta, fet amb capes translúcides. */
-private fun Modifier.resplendor(color: Color, forca: Float): Modifier = if (forca <= 0f) this else drawBehind {
+internal fun Modifier.resplendor(color: Color, forca: Float): Modifier = if (forca <= 0f) this else drawBehind {
     val pas = 2.5.dp.toPx()
     val radi = 18.dp.toPx()
     for (i in 7 downTo 1) {
@@ -128,7 +129,7 @@ private fun Modifier.resplendor(color: Color, forca: Float): Modifier = if (forc
 
 /** Franja de brillantor que recorre la carta (rares i millors). */
 @Composable
-private fun Modifier.holo(actiu: Boolean): Modifier {
+internal fun Modifier.holo(actiu: Boolean): Modifier {
     if (!actiu) return this
     val transicio = rememberInfiniteTransition(label = "holo")
     val t by transicio.animateFloat(
@@ -276,7 +277,7 @@ private fun TextEnCaixa(prefix: String?, text: String, mida: TextUnit, color: Co
 
 /** Etiqueta arrodonida (raresa, any). */
 @Composable
-private fun Etiqueta(text: String, fons: Color, escala: Float, modifier: Modifier = Modifier) {
+internal fun Etiqueta(text: String, fons: Color, escala: Float, modifier: Modifier = Modifier) {
     Text(
         text,
         modifier = modifier
@@ -290,7 +291,7 @@ private fun Etiqueta(text: String, fons: Color, escala: Float, modifier: Modifie
     )
 }
 
-private fun vida(carta: Carta): String? {
+internal fun vida(carta: Carta): String? {
     val n = carta.anyNaixement ?: return null
     val d = carta.defuncio?.take(4)
     return if (d != null) "$n–$d" else n
@@ -313,8 +314,13 @@ fun CartaView(
     nova: Boolean? = null,
     credit: String? = null,
     onCredit: (() -> Unit)? = null,
+    classic: Boolean = false,
     onClick: (() -> Unit)? = null,
 ) {
+    if (!classic && LocalEstilCarta.current == EstilCarta.FOTO) {
+        CartaFoto(carta, modifier, compacta, quantitat, nova, onClick)
+        return
+    }
     val colorMarc = colorRaresa(carta.raresa)
     val (dalt, baix) = fonsRaresa(carta.raresa)
     val forma = RoundedCornerShape(18.dp)

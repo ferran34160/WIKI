@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import cat.cartes.esports.data.Carta
 import cat.cartes.esports.data.CartaRepository
+import cat.cartes.esports.data.EstilCarta
 import cat.cartes.esports.data.EstatJugador
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -44,6 +45,9 @@ class JocViewModel(app: Application) : AndroidViewModel(app) {
     var reclamades by mutableStateOf<Set<String>>(emptySet())
         private set
 
+    var estilCarta by mutableStateOf(EstilCarta.CLASSIC)
+        private set
+
     /** Cartes que tens (una per id), per a l'àlbum i les missions. */
     var possedides by mutableStateOf<List<Carta>>(emptyList())
         private set
@@ -58,6 +62,8 @@ class JocViewModel(app: Application) : AndroidViewModel(app) {
         val tick = estat.llegeixLong("sobres_tick", System.currentTimeMillis())
         sobres = EstatSobres(guardats, tick)
         idioma = estat.llegeixText("idioma") ?: "ca"
+        estilCarta = runCatching { EstilCarta.valueOf(estat.llegeixText("estil_carta") ?: "") }
+            .getOrDefault(EstilCarta.CLASSIC)
         reclamades = estat.totesReclamades()
         recarregaInventari()
         tick()
@@ -194,6 +200,11 @@ class JocViewModel(app: Application) : AndroidViewModel(app) {
     fun canviaIdioma(codi: String) {
         idioma = codi
         estat.escriuText("idioma", codi)
+    }
+
+    fun canviaEstilCarta(estil: EstilCarta) {
+        estilCarta = estil
+        estat.escriuText("estil_carta", estil.name)
     }
 
     // ---- Interns ---------------------------------------------------------------------

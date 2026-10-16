@@ -1,5 +1,6 @@
 package cat.cartes.esports.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +21,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import cat.cartes.esports.data.EstilCarta
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.foundation.clickable
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -82,14 +89,46 @@ fun DetallCarta(cartaId: String, vm: JocViewModel, onTorna: () -> Unit) {
         }
         BoxWithConstraints(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
             val ample = minOf(maxWidth, maxHeight * 0.68f)
-            CartaView(
-                carta,
-                modifier = Modifier.width(ample),
-                extracte = text?.text,
-                premis = premisText,
-                pais = pais,
-                credit = credit,
-                onCredit = carta.fotoPagina?.let { pagina -> { uri.openUri(pagina) } },
+            val dors: @Composable () -> Unit = {
+                CartaView(
+                    carta,
+                    modifier = Modifier.width(ample),
+                    extracte = text?.text,
+                    premis = premisText,
+                    pais = pais,
+                    credit = credit,
+                    onCredit = carta.fotoPagina?.let { pagina -> { uri.openUri(pagina) } },
+                    classic = true,
+                )
+            }
+            if (LocalEstilCarta.current == EstilCarta.FOTO) {
+                // Estil foto: la cara és només imatge; tocant-la es gira i al dors hi ha tot el text.
+                var girada by remember(cartaId) { mutableStateOf(false) }
+                val rotacio by animateFloatAsState(if (girada) 180f else 0f, tween(600), label = "dors")
+                val densitat = LocalDensity.current.density
+                Box(
+                    Modifier
+                        .graphicsLayer {
+                            rotationY = rotacio
+                            cameraDistance = 12f * densitat
+                        }
+                        .clickable { girada = !girada },
+                ) {
+                    if (rotacio <= 90f) {
+                        CartaView(carta, modifier = Modifier.width(ample), quantitat = quantitat)
+                    } else {
+                        Box(Modifier.graphicsLayer { rotationY = 180f }) { dors() }
+                    }
+                }
+            } else {
+                dors()
+            }
+        }
+        if (LocalEstilCarta.current == EstilCarta.FOTO) {
+            Text(
+                stringResource(R.string.gira_carta),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 12.sp,
             )
         }
         if (quantitat > 0) {

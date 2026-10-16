@@ -26,3 +26,6 @@ data class TextCarta(val text: String, val url: String?, val llengua: String)
 data class PremiCarta(val nom: String, val any: String?)
 
 data class MarcaCarta(val disciplina: String, val valor: Double, val unitat: String?)
+
+/** Estil visual de les cartes: el clàssic (amb text) o el de foto a pantalla completa. */
+enum class EstilCarta { CLASSIC, FOTO }

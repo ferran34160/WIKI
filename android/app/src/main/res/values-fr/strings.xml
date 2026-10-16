@@ -24,6 +24,12 @@
     <string name="torna">Retour</string>
     <string name="sobre_nom">Paquet</string>
     <string name="sobre_cartes_n">%1$d cartes</string>
+    <string name="estil_carta">Style des cartes</string>
+    <string name="estil_classic">Classique</string>
+    <string name="estil_foto">Photo</string>
+    <string name="etiqueta_naix">Né</string>
+    <string name="etiqueta_alcada">Taille</string>
+    <string name="gira_carta">Touchez la carte pour la retourner</string>
     <string name="obre_sobre">Ouvrir un paquet</string>
     <string name="sobres_guardats">Paquets : %1$d sur %2$d</string>
     <string name="proper_sobre">Prochain paquet dans %1$s</string>
