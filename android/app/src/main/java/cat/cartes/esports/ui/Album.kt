@@ -61,6 +61,8 @@ fun PantallaAlbum(vm: JocViewModel, onObreCarta: (String) -> Unit) {
         }
         .sortedWith(compareByDescending<Carta> { it.raresa }.thenByDescending { it.visites })
 
+    val totesTriades = cartes.isNotEmpty() && cartes.all { it.id in seleccio }
+
     fun surtDeSeleccio() {
         seleccionant = false
         seleccio = emptySet()
@@ -93,6 +95,17 @@ fun PantallaAlbum(vm: JocViewModel, onObreCarta: (String) -> Unit) {
         Spacer(Modifier.height(6.dp))
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (seleccionant) {
+                item {
+                    ChipFiltre(
+                        if (totesTriades) stringResource(R.string.deselecciona_totes)
+                        else stringResource(R.string.selecciona_totes),
+                        triat = totesTriades,
+                        alTocar = {
+                            val mostrades = cartes.map { it.id }.toSet()
+                            seleccio = if (totesTriades) seleccio - mostrades else seleccio + mostrades
+                        },
+                    )
+                }
                 item {
                     ChipFiltre(
                         stringResource(R.string.selecciona_repetides),
