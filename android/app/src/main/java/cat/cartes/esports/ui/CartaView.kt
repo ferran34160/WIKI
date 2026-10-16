@@ -56,10 +56,9 @@ import androidx.compose.ui.unit.sp
 import cat.cartes.esports.R
 import cat.cartes.esports.data.Carta
 import cat.cartes.esports.data.banderaPais
-import coil.compose.AsyncImage
 import java.util.Locale
 
-private val FonsCarta = Color(0xFF1E1B3A)
+private val FonsCarta = Color(0xFF111117)
 private val TintaCarta = Color(0xFF14122B)
 
 /** Parell de colors (a dalt, a baix) del fons de la carta segons la raresa. */
@@ -309,13 +308,7 @@ fun CartaView(
                     modifier = Modifier.align(Alignment.Center).fillMaxSize(0.55f),
                 )
                 if (carta.fotoUrl != null) {
-                    AsyncImage(
-                        model = carta.fotoUrl,
-                        contentDescription = carta.nom,
-                        contentScale = ContentScale.Crop,
-                        alignment = Alignment.TopCenter,
-                        modifier = Modifier.fillMaxSize(),
-                    )
+                    FotoCarta(carta.fotoUrl, carta.nom, Modifier.fillMaxSize())
                 }
                 Etiqueta(
                     nomRaresa(carta.raresa),
