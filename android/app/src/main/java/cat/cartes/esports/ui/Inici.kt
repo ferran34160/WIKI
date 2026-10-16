@@ -30,7 +30,9 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -184,8 +186,19 @@ private fun ObertureSobre(
     }
     val queden = vistes.count { !it }
     val resources = LocalContext.current.resources
+    val vibracio = LocalHapticFeedback.current
+    val flaix = remember { Animatable(0f) }
+    LaunchedEffect(llegendariaRevelada) {
+        if (llegendariaRevelada) {
+            vibracio.performHapticFeedback(HapticFeedbackType.LongPress)
+            flaix.snapTo(0.85f)
+            flaix.animateTo(0f, tween(800))
+        }
+    }
 
     Box(Modifier.fillMaxSize()) {
+        // Darrere la carta: raigs daurats quan s'ha revelat una llegendària.
+        if (llegendariaRevelada) RaigsDaurats()
         Column(
             Modifier.fillMaxSize().padding(vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -265,6 +278,9 @@ private fun ObertureSobre(
                 fontWeight = FontWeight.Bold,
                 color = colorRaresa(5),
             )
+        }
+        if (flaix.value > 0.01f) {
+            Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = flaix.value)))
         }
     }
 }

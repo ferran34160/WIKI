@@ -89,7 +89,7 @@ internal fun forcaResplendor(raresa: Int): Float = when (raresa) {
     2 -> 0.5f
     3 -> 0.8f
     4 -> 1.1f
-    else -> 1.5f
+    else -> 2.1f
 }
 
 /** Vora amb degradat metàl·lic; a les èpiques i llegendàries el degradat es mou. */
@@ -109,7 +109,7 @@ internal fun Modifier.voraRaresa(raresa: Int, forma: Shape): Modifier {
         end = Offset(x + 600f, 600f),
         tileMode = TileMode.Mirror,
     )
-    return this.border(if (raresa >= 4) 3.5.dp else 2.5.dp, pinzell, forma)
+    return this.border(if (raresa >= 5) 4.5.dp else if (raresa >= 4) 3.5.dp else 2.5.dp, pinzell, forma)
 }
 
 /** Halo de color de la raresa al voltant de la carta, fet amb capes translúcides. */
@@ -337,7 +337,8 @@ fun CartaView(
             .voraRaresa(carta.raresa, forma)
             .fonsTexturat(dalt, baix, carta.esport)
             .let { if (onClick != null) it.clickable(onClick = onClick) else it }
-            .holo(carta.raresa >= 3),
+            .holo(carta.raresa >= 3)
+            .efectesRaresa(carta.raresa, carta.id.hashCode()),
     ) {
         // Tot el text s'escala amb l'ample de la carta; així cap a la quadrícula i al detall.
         val escala = (maxWidth.value / 180f).coerceIn(0.75f, 1.7f)
@@ -352,9 +353,9 @@ fun CartaView(
                 if (carta.fotoUrl != null) {
                     FotoCarta(carta.fotoUrl, carta.nom, Modifier.fillMaxSize())
                 }
-                Etiqueta(
+                EtiquetaRaresa(
+                    carta.raresa,
                     nomRaresa(carta.raresa),
-                    colorMarc,
                     escala,
                     Modifier.align(Alignment.TopStart).padding((8 * escala).dp),
                 )

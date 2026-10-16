@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
@@ -83,7 +84,8 @@ fun CartaFoto(
             .voraRaresa(carta.raresa, forma)
             .background(Color(0xFF0B0B10))
             .let { if (onClick != null) it.clickable(onClick = onClick) else it }
-            .holo(carta.raresa >= 3),
+            .holo(carta.raresa >= 3)
+            .efectesRaresa(carta.raresa, carta.id.hashCode()),
     ) {
         val e = (maxWidth.value / 180f).coerceIn(0.75f, 1.7f)
 
@@ -105,7 +107,7 @@ fun CartaFoto(
         )
 
         // A dalt: raresa a l'esquerra; novetat, còpies i (a la graella) bandera a la dreta.
-        Etiqueta(nomRaresa(carta.raresa), colorMarc, e, Modifier.align(Alignment.TopStart).padding((8 * e).dp))
+        EtiquetaRaresa(carta.raresa, nomRaresa(carta.raresa), e, Modifier.align(Alignment.TopStart).padding((8 * e).dp))
         Row(
             Modifier.align(Alignment.TopEnd).padding((8 * e).dp),
             horizontalArrangement = Arrangement.spacedBy((4 * e).dp),
@@ -127,6 +129,21 @@ fun CartaFoto(
                     fontSize = (13 * e).sp,
                 )
             }
+        }
+
+        // A la graella, un distintiu daurat visible de lluny per a les llegendàries.
+        if (compacta && carta.raresa >= 5) {
+            Text(
+                "★",
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding((6 * e).dp)
+                    .background(Brush.linearGradient(listOf(Color(0xFFFFF1A6), Color(0xFFFF9A3C))), CircleShape)
+                    .padding(horizontal = (6 * e).dp, vertical = (2 * e).dp),
+                fontSize = (13 * e).sp,
+                color = Color(0xFF3A2400),
+                fontWeight = FontWeight.ExtraBold,
+            )
         }
 
         // Franja lateral amb país, esport, naixement i alçada (només a la carta gran).
@@ -168,15 +185,21 @@ fun CartaFoto(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            Text(
-                if (senseCognom) carta.nom else carta.cognom.orEmpty(),
-                fontSize = ((if (compacta) 12 else 17) * e).sp,
-                lineHeight = ((if (compacta) 12 else 17) * e * 1.1f).sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = Color.White,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
+            val nom = if (senseCognom) carta.nom else carta.cognom.orEmpty()
+            val mida = (if (compacta) 12 else 17) * e
+            if (carta.raresa >= 5) {
+                TextDaurat(nom, mida, mida * 1.1f, maxLinies = 2)
+            } else {
+                Text(
+                    nom,
+                    fontSize = mida.sp,
+                    lineHeight = (mida * 1.1f).sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.White,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
             Box(Modifier.padding(top = (4 * e).dp).width((30 * e).dp).height(3.dp).background(accent))
         }
     }
