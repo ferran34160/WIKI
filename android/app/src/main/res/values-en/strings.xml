@@ -30,6 +30,13 @@
     <string name="etiqueta_naix">Born</string>
     <string name="etiqueta_alcada">Ht</string>
     <string name="gira_carta">Tap the card to flip it</string>
+    <string name="selecciona">Select</string>
+    <string name="selecciona_repetides">Duplicates</string>
+    <string name="n_seleccionades">%1$d selected</string>
+    <string name="destruir_n">Destroy %1$d cards (+%2$d coins)</string>
+    <string name="confirma_multi">You will destroy one copy of each of the %1$d selected cards and earn %2$d coins.</string>
+    <string name="confirma_multi_perdudes">%1$d will leave your album.</string>
+    <string name="titol_totes">All cards</string>
     <string name="obre_sobre">Open a pack</string>
     <string name="sobres_guardats">Packs: %1$d of %2$d</string>
     <string name="proper_sobre">Next pack in %1$s</string>

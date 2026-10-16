@@ -30,6 +30,13 @@
     <string name="etiqueta_naix">Né</string>
     <string name="etiqueta_alcada">Taille</string>
     <string name="gira_carta">Touchez la carte pour la retourner</string>
+    <string name="selecciona">Sélectionner</string>
+    <string name="selecciona_repetides">Doublons</string>
+    <string name="n_seleccionades">%1$d sélectionnées</string>
+    <string name="destruir_n">Détruire %1$d cartes (+%2$d pièces)</string>
+    <string name="confirma_multi">Vous allez détruire un exemplaire de chacune des %1$d cartes sélectionnées et gagner %2$d pièces.</string>
+    <string name="confirma_multi_perdudes">%1$d quitteront votre album.</string>
+    <string name="titol_totes">Toutes les cartes</string>
     <string name="obre_sobre">Ouvrir un paquet</string>
     <string name="sobres_guardats">Paquets : %1$d sur %2$d</string>
     <string name="proper_sobre">Prochain paquet dans %1$s</string>

@@ -32,17 +32,14 @@ private val IDIOMES = listOf(
 @Composable
 fun PantallaPerfil(vm: JocViewModel) {
     Column(
-        Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
+        Modifier.fillMaxSize().padding(horizontal = 16.dp).verticalScroll(rememberScrollState()),
     ) {
+        TitolPantalla(titol = stringResource(R.string.perfil_titol))
         Text(stringResource(R.string.idioma), fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             IDIOMES.forEach { (codi, nom) ->
-                FilterChip(
-                    selected = vm.idioma == codi,
-                    onClick = { vm.canviaIdioma(codi) },
-                    label = { Text(nom) },
-                )
+                ChipFiltre(nom, vm.idioma == codi, { vm.canviaIdioma(codi) })
             }
         }
         Spacer(Modifier.height(24.dp))
@@ -50,16 +47,10 @@ fun PantallaPerfil(vm: JocViewModel) {
         Text(stringResource(R.string.estil_carta), fontSize = 18.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilterChip(
-                selected = vm.estilCarta == EstilCarta.CLASSIC,
-                onClick = { vm.canviaEstilCarta(EstilCarta.CLASSIC) },
-                label = { Text(stringResource(R.string.estil_classic)) },
-            )
-            FilterChip(
-                selected = vm.estilCarta == EstilCarta.FOTO,
-                onClick = { vm.canviaEstilCarta(EstilCarta.FOTO) },
-                label = { Text(stringResource(R.string.estil_foto)) },
-            )
+            ChipFiltre(stringResource(R.string.estil_classic), vm.estilCarta == EstilCarta.CLASSIC,
+                { vm.canviaEstilCarta(EstilCarta.CLASSIC) })
+            ChipFiltre(stringResource(R.string.estil_foto), vm.estilCarta == EstilCarta.FOTO,
+                { vm.canviaEstilCarta(EstilCarta.FOTO) })
         }
         Spacer(Modifier.height(24.dp))
 

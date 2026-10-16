@@ -33,18 +33,11 @@ import cat.cartes.esports.game.JocViewModel
 @Composable
 fun PantallaTaller(vm: JocViewModel) {
     var pestanya by remember { mutableStateOf(0) }
-    Column(Modifier.fillMaxSize().padding(horizontal = 12.dp)) {
+    Column(Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+        TitolPantalla(titol = stringResource(R.string.tab_taller))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilterChip(
-                selected = pestanya == 0,
-                onClick = { pestanya = 0 },
-                label = { Text(stringResource(R.string.taller_destruir)) },
-            )
-            FilterChip(
-                selected = pestanya == 1,
-                onClick = { pestanya = 1 },
-                label = { Text(stringResource(R.string.taller_fabricar)) },
-            )
+            ChipFiltre(stringResource(R.string.taller_destruir), pestanya == 0, { pestanya = 0 })
+            ChipFiltre(stringResource(R.string.taller_fabricar), pestanya == 1, { pestanya = 1 })
         }
         Spacer(Modifier.height(8.dp))
         if (pestanya == 0) TallerDestruir(vm) else TallerFabricar(vm)
@@ -96,13 +89,7 @@ private fun TallerFabricar(vm: JocViewModel) {
     val resultats: List<Carta> = remember(text) {
         if (text.trim().length < 2) emptyList() else vm.repo.cerca(text, 30)
     }
-    OutlinedTextField(
-        value = text,
-        onValueChange = { text = it },
-        label = { Text(stringResource(R.string.cerca_fabricar)) },
-        singleLine = true,
-        modifier = Modifier.fillMaxWidth(),
-    )
+    CampCerca(text, { text = it }, stringResource(R.string.cerca_fabricar))
     Spacer(Modifier.height(8.dp))
     LazyColumn(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         items(resultats, key = { it.id }) { c ->

@@ -25,6 +25,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,7 +39,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import cat.cartes.esports.ui.MonedesPill
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -125,22 +132,33 @@ private fun ArrelJoc(vm: JocViewModel) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    stringResource(R.string.monedes_n, vm.monedes),
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                IconButton(onClick = { perfilObert = !perfilObert }) {
+                MonedesPill(vm.monedes)
+                IconButton(
+                    onClick = { perfilObert = !perfilObert },
+                    modifier = Modifier
+                        .background(
+                            if (perfilObert) MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
+                            else MaterialTheme.colorScheme.surface,
+                            CircleShape,
+                        ),
+                ) {
                     Icon(
                         Icons.Default.Person,
                         contentDescription = stringResource(R.string.perfil_titol),
+                        tint = if (perfilObert) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }
         },
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                modifier = Modifier.drawBehind {
+                    drawLine(
+                        Color(0xFF262B2A), Offset(0f, 0f), Offset(size.width, 0f), strokeWidth = 1.dp.toPx(),
+                    )
+                },
+            ) {
                 PESTANYES.forEachIndexed { i, p ->
                     NavigationBarItem(
                         selected = pestanya == i && !perfilObert,
@@ -151,6 +169,13 @@ private fun ArrelJoc(vm: JocViewModel) {
                         },
                         icon = { Icon(p.icona, contentDescription = null) },
                         label = { Text(stringResource(p.titol), fontSize = 11.sp, maxLines = 1) },
+                        colors = NavigationBarItemDefaults.colors(
+                            indicatorColor = Color.Transparent,
+                            selectedIconColor = MaterialTheme.colorScheme.primary,
+                            selectedTextColor = MaterialTheme.colorScheme.primary,
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ),
                     )
                 }
             }

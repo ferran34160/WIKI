@@ -30,6 +30,13 @@
     <string name="etiqueta_naix">Naix.</string>
     <string name="etiqueta_alcada">Alç.</string>
     <string name="gira_carta">Toca la carta per girar-la</string>
+    <string name="selecciona">Selecciona</string>
+    <string name="selecciona_repetides">Repetides</string>
+    <string name="n_seleccionades">%1$d seleccionades</string>
+    <string name="destruir_n">Destruir %1$d cartes (+%2$d monedes)</string>
+    <string name="confirma_multi">Destruiràs una còpia de cadascuna de les %1$d cartes seleccionades i guanyaràs %2$d monedes.</string>
+    <string name="confirma_multi_perdudes">%1$d deixaran de ser a l\'àlbum.</string>
+    <string name="titol_totes">Totes les cartes</string>
     <string name="obre_sobre">Obre un sobre</string>
     <string name="sobres_guardats">Sobres: %1$d de %2$d</string>
     <string name="proper_sobre">Proper sobre en %1$s</string>

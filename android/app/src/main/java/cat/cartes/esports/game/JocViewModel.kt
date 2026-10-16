@@ -132,6 +132,29 @@ class JocViewModel(app: Application) : AndroidViewModel(app) {
         return guany
     }
 
+    /** Monedes que es guanyarien destruint una còpia de cada carta de [ids] que es tingui. */
+    fun monedesSeleccio(ids: Collection<String>): Int =
+        possedides.filter { it.id in ids }.sumOf { Economia.valorDestruccio(it.raresa) }
+
+    /** Destrueix una còpia de cada carta de [ids] que es tingui. Retorna les monedes guanyades. */
+    fun destrueixSeleccio(ids: Collection<String>): Int {
+        var guany = 0
+        var quantes = 0
+        for (c in possedides) {
+            if (c.id in ids && (inventari[c.id] ?: 0) > 0) {
+                estat.canvia(c.id, -1)
+                guany += Economia.valorDestruccio(c.raresa)
+                quantes++
+            }
+        }
+        if (quantes > 0) {
+            canviaMonedes(+guany)
+            augmenta("st_destruides", quantes)
+            recarregaInventari()
+        }
+        return guany
+    }
+
     /** Destrueix totes les repetides (deixant-ne una de cada). Retorna les monedes guanyades. */
     fun destrueixRepetides(): Int {
         var guany = 0

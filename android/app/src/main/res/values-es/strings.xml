@@ -30,6 +30,13 @@
     <string name="etiqueta_naix">Nac.</string>
     <string name="etiqueta_alcada">Alt.</string>
     <string name="gira_carta">Toca la carta para girarla</string>
+    <string name="selecciona">Seleccionar</string>
+    <string name="selecciona_repetides">Repetidas</string>
+    <string name="n_seleccionades">%1$d seleccionadas</string>
+    <string name="destruir_n">Destruir %1$d cartas (+%2$d monedas)</string>
+    <string name="confirma_multi">Destruirás una copia de cada una de las %1$d cartas seleccionadas y ganarás %2$d monedas.</string>
+    <string name="confirma_multi_perdudes">%1$d dejarán de estar en el álbum.</string>
+    <string name="titol_totes">Todas las cartas</string>
     <string name="obre_sobre">Abrir un sobre</string>
     <string name="sobres_guardats">Sobres: %1$d de %2$d</string>
     <string name="proper_sobre">Próximo sobre en %1$s</string>

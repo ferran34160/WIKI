@@ -62,52 +62,27 @@ fun PantallaTotes(vm: JocViewModel, onObreCarta: (String) -> Unit) {
         }
     }
 
-    Column(Modifier.fillMaxSize().padding(horizontal = 12.dp)) {
-        OutlinedTextField(
-            value = text,
-            onValueChange = { text = it },
-            label = { Text(stringResource(R.string.cerca_carta)) },
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth(),
+    Column(Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+        TitolPantalla(
+            titol = stringResource(R.string.titol_totes),
+            subtitol = stringResource(R.string.cartes_total_n, total),
         )
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            item {
-                FilterChip(
-                    selected = esport == null,
-                    onClick = { esport = null },
-                    label = { Text(stringResource(R.string.tots)) },
-                )
-            }
-            items(ESPORTS) { e ->
-                FilterChip(
-                    selected = esport == e,
-                    onClick = { esport = if (esport == e) null else e },
-                    label = { Text(nomEsport(e)) },
-                )
-            }
-        }
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            item {
-                FilterChip(
-                    selected = nomesFalten,
-                    onClick = { nomesFalten = !nomesFalten },
-                    label = { Text(stringResource(R.string.em_falten)) },
-                )
-            }
-            items((1..5).toList()) { r ->
-                FilterChip(
-                    selected = raresa == r,
-                    onClick = { raresa = if (raresa == r) null else r },
-                    label = { Text(nomRaresa(r)) },
-                )
-            }
-        }
-        Spacer(Modifier.height(4.dp))
-        Text(
-            stringResource(R.string.cartes_total_n, total),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        CampCerca(text, { text = it }, stringResource(R.string.cerca_carta))
         Spacer(Modifier.height(8.dp))
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            item { ChipFiltre(stringResource(R.string.tots), esport == null, { esport = null }) }
+            items(ESPORTS) { e ->
+                ChipFiltre(nomEsport(e), esport == e, { esport = if (esport == e) null else e })
+            }
+        }
+        Spacer(Modifier.height(6.dp))
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            item { ChipFiltre(stringResource(R.string.em_falten), nomesFalten, { nomesFalten = !nomesFalten }) }
+            items((1..5).toList()) { r ->
+                ChipFiltre(nomRaresa(r), raresa == r, { raresa = if (raresa == r) null else r }, punt = colorRaresa(r))
+            }
+        }
+        Spacer(Modifier.height(10.dp))
         LazyVerticalGrid(
             state = graella,
             columns = GridCells.Adaptive(110.dp),

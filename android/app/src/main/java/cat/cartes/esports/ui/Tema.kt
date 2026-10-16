@@ -8,20 +8,22 @@ import androidx.compose.ui.res.stringResource
 import cat.cartes.esports.R
 
 private val Esquema = darkColorScheme(
-    primary = Color(0xFFFFB300),
-    onPrimary = Color.Black,
+    primary = Color(0xFF3DDC97),
+    onPrimary = Color(0xFF03140C),
     secondary = Color(0xFF7C4DFF),
-    background = Color(0xFF06060A),
-    surface = Color(0xFF111117),
-    surfaceVariant = Color(0xFF1B1B25),
-    surfaceContainerLowest = Color(0xFF040407),
-    surfaceContainerLow = Color(0xFF0B0B10),
-    surfaceContainer = Color(0xFF0E0E14),
-    surfaceContainerHigh = Color(0xFF16161E),
-    surfaceContainerHighest = Color(0xFF1D1D27),
+    background = Color(0xFF0A0A0A),
+    surface = Color(0xFF141616),
+    surfaceVariant = Color(0xFF1D2120),
+    outline = Color(0xFF3A4140),
+    outlineVariant = Color(0xFF262B2A),
+    surfaceContainerLowest = Color(0xFF060606),
+    surfaceContainerLow = Color(0xFF0E0F0F),
+    surfaceContainer = Color(0xFF111313),
+    surfaceContainerHigh = Color(0xFF181B1A),
+    surfaceContainerHighest = Color(0xFF1F2322),
     onBackground = Color.White,
-    onSurface = Color.White,
-    onSurfaceVariant = Color(0xFFCFCBEA),
+    onSurface = Color(0xFFF2F4F3),
+    onSurfaceVariant = Color(0xFF9AA3A0),
 )
 
 @Composable

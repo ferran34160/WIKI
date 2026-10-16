@@ -1,6 +1,8 @@
 package cat.cartes.esports.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -47,9 +49,11 @@ fun PantallaMissions(vm: JocViewModel) {
     // Llegir l'inventari i les monedes fa que la pantalla es refresqui quan canvien.
     @Suppress("UNUSED_VARIABLE") val dependencia = vm.inventari.size + vm.monedes + vm.sobres.guardats
 
+    Column(Modifier.fillMaxSize().padding(horizontal = 16.dp)) {
+    TitolPantalla(titol = stringResource(R.string.tab_missions))
     LazyColumn(
-        Modifier.fillMaxSize().padding(horizontal = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        Modifier.weight(1f),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         items(Missions.totes, key = { it.id }) { m ->
             val progres = vm.progres(m).coerceAtMost(m.objectiu)
@@ -57,6 +61,8 @@ fun PantallaMissions(vm: JocViewModel) {
             val acabada = progres >= m.objectiu
             Card(
                 Modifier.fillMaxWidth().alpha(if (reclamada) 0.45f else 1f),
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
             ) {
                 Column(Modifier.padding(12.dp)) {
@@ -109,5 +115,6 @@ fun PantallaMissions(vm: JocViewModel) {
                 }
             }
         }
+    }
     }
 }
