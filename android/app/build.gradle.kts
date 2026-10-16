@@ -12,8 +12,8 @@ android {
         applicationId = "cat.cartes.esports"
         minSdk = 24
         targetSdk = 35
-        versionCode = 3
-        versionName = "0.3"
+        versionCode = 4
+        versionName = "0.4"
     }
 
     // Clau de depuració fixa (pública, només per a proves): així cada APK
