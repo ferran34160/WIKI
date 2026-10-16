@@ -48,6 +48,10 @@ class JocViewModel(app: Application) : AndroidViewModel(app) {
     var estilCarta by mutableStateOf(EstilCarta.FOTO)
         private set
 
+    /** Ids de les cartes marcades com a preferides (estrella). */
+    var preferides by mutableStateOf<Set<String>>(emptySet())
+        private set
+
     /** Cartes que tens (una per id), per a l'àlbum i les missions. */
     var possedides by mutableStateOf<List<Carta>>(emptyList())
         private set
@@ -62,6 +66,7 @@ class JocViewModel(app: Application) : AndroidViewModel(app) {
         val tick = estat.llegeixLong("sobres_tick", System.currentTimeMillis())
         sobres = EstatSobres(guardats, tick)
         idioma = estat.llegeixText("idioma") ?: "ca"
+        preferides = estat.llegeixText("preferides").orEmpty().split(',').filter { it.isNotBlank() }.toSet()
         estilCarta = runCatching { EstilCarta.valueOf(estat.llegeixText("estil_carta") ?: "") }
             .getOrDefault(EstilCarta.FOTO)
         reclamades = estat.totesReclamades()
@@ -223,6 +228,32 @@ class JocViewModel(app: Application) : AndroidViewModel(app) {
     fun canviaIdioma(codi: String) {
         idioma = codi
         estat.escriuText("idioma", codi)
+    }
+
+    fun canviaPreferida(cartaId: String) {
+        preferides = if (cartaId in preferides) preferides - cartaId else preferides + cartaId
+        estat.escriuText("preferides", preferides.joinToString(","))
+    }
+
+    // ---- Èxits -----------------------------------------------------------------------
+
+    fun progresExit(e: Exit): Int = when (e.tipus) {
+        TipusExit.CARTES -> inventari.size
+        TipusExit.LLEGENDARIES -> possedides.count { it.raresa >= 5 }
+        TipusExit.EPIQUES_O_MES -> possedides.count { it.raresa >= 4 }
+        TipusExit.ESPORT -> possedides.count { it.esport == e.esport }
+        TipusExit.SOBRES -> estat.llegeixLong("st_sobres").toInt()
+        TipusExit.DESTRUIDES -> estat.llegeixLong("st_destruides").toInt()
+        TipusExit.FABRICADES -> estat.llegeixLong("st_fabricades").toInt()
+    }
+
+    fun exitReclamat(e: Exit): Boolean = "exit:${e.id}" in reclamades
+
+    fun reclamaExit(e: Exit): Int {
+        if (exitReclamat(e) || progresExit(e) < e.objectiu) return 0
+        marcaReclamada("exit:${e.id}")
+        canviaMonedes(+e.recompensa)
+        return e.recompensa
     }
 
     fun canviaEstilCarta(estil: EstilCarta) {

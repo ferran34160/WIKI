@@ -39,6 +39,14 @@
     <string name="titol_totes">All cards</string>
     <string name="selecciona_totes">Select all</string>
     <string name="deselecciona_totes">Clear selection</string>
+    <string name="exit_cartes">Collect %1$d different cards</string>
+    <string name="exit_llegendaries">Get %1$d legendary cards</string>
+    <string name="exit_epiques">Get %1$d epic or better cards</string>
+    <string name="exit_esport">Get %1$d %2$s cards</string>
+    <string name="tab_exits">Achievements</string>
+    <string name="filtre_preferides">Favorites</string>
+    <string name="confirma_multi_preferides">%1$d are favorites.</string>
+    <string name="preferida">Favorite</string>
     <string name="obre_sobre">Open a pack</string>
     <string name="sobres_guardats">Packs: %1$d of %2$d</string>
     <string name="proper_sobre">Next pack in %1$s</string>

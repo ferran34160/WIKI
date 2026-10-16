@@ -128,3 +128,41 @@ object Missions {
         Missio("fabricar_1", TipusMissio.CARTES_FABRICADES, 1, 40),
     )
 }
+
+enum class TipusExit { CARTES, LLEGENDARIES, EPIQUES_O_MES, ESPORT, SOBRES, DESTRUIDES, FABRICADES }
+
+/** Un èxit: s'aconsegueix una sola vegada i dona monedes. [esport] només s'usa al tipus ESPORT. */
+data class Exit(
+    val id: String,
+    val tipus: TipusExit,
+    val objectiu: Int,
+    val recompensa: Int,
+    val esport: String? = null,
+)
+
+object Exits {
+    val tots: List<Exit> = buildList {
+        add(Exit("cartes_25", TipusExit.CARTES, 25, 50))
+        add(Exit("cartes_50", TipusExit.CARTES, 50, 100))
+        add(Exit("cartes_100", TipusExit.CARTES, 100, 250))
+        add(Exit("cartes_200", TipusExit.CARTES, 200, 500))
+        add(Exit("cartes_300", TipusExit.CARTES, 300, 1000))
+        add(Exit("epiques_3", TipusExit.EPIQUES_O_MES, 3, 100))
+        add(Exit("epiques_8", TipusExit.EPIQUES_O_MES, 8, 300))
+        add(Exit("epiques_15", TipusExit.EPIQUES_O_MES, 15, 800))
+        add(Exit("llegendaries_1", TipusExit.LLEGENDARIES, 1, 200))
+        add(Exit("llegendaries_3", TipusExit.LLEGENDARIES, 3, 600))
+        for (esport in listOf("futbol", "basquet", "tennis", "atletisme")) {
+            add(Exit("${esport}_15", TipusExit.ESPORT, 15, 60, esport))
+            add(Exit("${esport}_40", TipusExit.ESPORT, 40, 200, esport))
+            add(Exit("${esport}_70", TipusExit.ESPORT, 70, 500, esport))
+        }
+        add(Exit("sobres_25", TipusExit.SOBRES, 25, 75))
+        add(Exit("sobres_100", TipusExit.SOBRES, 100, 300))
+        add(Exit("sobres_250", TipusExit.SOBRES, 250, 800))
+        add(Exit("destruir_25", TipusExit.DESTRUIDES, 25, 50))
+        add(Exit("destruir_100", TipusExit.DESTRUIDES, 100, 200))
+        add(Exit("fabricar_3", TipusExit.FABRICADES, 3, 100))
+        add(Exit("fabricar_10", TipusExit.FABRICADES, 10, 400))
+    }
+}

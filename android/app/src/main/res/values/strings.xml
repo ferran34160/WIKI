@@ -39,6 +39,14 @@
     <string name="titol_totes">Totes les cartes</string>
     <string name="selecciona_totes">Selecciona-ho tot</string>
     <string name="deselecciona_totes">Treu la selecció</string>
+    <string name="exit_cartes">Aconsegueix %1$d cartes diferents</string>
+    <string name="exit_llegendaries">Aconsegueix %1$d llegendàries</string>
+    <string name="exit_epiques">Aconsegueix %1$d cartes èpiques o millors</string>
+    <string name="exit_esport">Aconsegueix %1$d cartes de %2$s</string>
+    <string name="tab_exits">Èxits</string>
+    <string name="filtre_preferides">Preferides</string>
+    <string name="confirma_multi_preferides">%1$d són preferides.</string>
+    <string name="preferida">Preferida</string>
     <string name="obre_sobre">Obre un sobre</string>
     <string name="sobres_guardats">Sobres: %1$d de %2$d</string>
     <string name="proper_sobre">Proper sobre en %1$s</string>
