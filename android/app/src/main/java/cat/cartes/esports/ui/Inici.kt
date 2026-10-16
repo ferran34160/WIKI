@@ -2,6 +2,7 @@ package cat.cartes.esports.ui
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -48,6 +49,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.BlurredEdgeTreatment
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -118,10 +122,16 @@ fun PantallaInici(vm: JocViewModel, onObreCarta: (String) -> Unit) {
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(24.dp))
+        // Sense sobres per obrir, el sobre es veu atenuat i una mica difuminat.
+        val senseSobres = guardats <= 0
+        val opacitat by animateFloatAsState(if (senseSobres) 0.4f else 1f, tween(500), label = "sobre_alfa")
+        val difuminat by animateDpAsState(if (senseSobres) 6.dp else 0.dp, tween(500), label = "sobre_blur")
         SobreView(
             Modifier
                 .fillMaxWidth(0.6f)
                 .graphicsLayer { rotationZ = angle.value }
+                .blur(difuminat, BlurredEdgeTreatment.Unbounded)
+                .alpha(opacitat)
                 .clickable(enabled = guardats > 0, onClick = obre),
         )
         Spacer(Modifier.height(24.dp))
