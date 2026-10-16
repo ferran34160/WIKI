@@ -45,7 +45,7 @@ class JocViewModel(app: Application) : AndroidViewModel(app) {
     var reclamades by mutableStateOf<Set<String>>(emptySet())
         private set
 
-    var estilCarta by mutableStateOf(EstilCarta.CLASSIC)
+    var estilCarta by mutableStateOf(EstilCarta.FOTO)
         private set
 
     /** Cartes que tens (una per id), per a l'àlbum i les missions. */
@@ -63,7 +63,7 @@ class JocViewModel(app: Application) : AndroidViewModel(app) {
         sobres = EstatSobres(guardats, tick)
         idioma = estat.llegeixText("idioma") ?: "ca"
         estilCarta = runCatching { EstilCarta.valueOf(estat.llegeixText("estil_carta") ?: "") }
-            .getOrDefault(EstilCarta.CLASSIC)
+            .getOrDefault(EstilCarta.FOTO)
         reclamades = estat.totesReclamades()
         recarregaInventari()
         tick()
